@@ -1,0 +1,20 @@
+{
+    "summary": "LanguageEnv is a Gym environment for language generation using MCTS, with state initialized by input_ids and attention_mask. It assigns rewards on terminal states and uses done flag to indicate completion. The function returns state, reward, and done flag on an empty dictionary argument, while equality_operator compares two tensors for element-wise equality.",
+    "details": [
+        {
+            "comment": "LanguageEnv is a Gym environment for language generation. It utilizes the OrderedDict and requires an external reward function. The reset method accepts input_ids and attention_mask as arguments.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/envs/language_env.py\":0-31",
+            "content": "from collections import OrderedDict\nimport gym\nimport torch\nclass LanguageEnv(gym.Env):\n    \"\"\"\n    Langauge generation environment.\n    State: a list of tokens.\n    Action: a token (an integer).\n    Transition: the next state is the current state concatenated with the action.\n    Reward: an external function that evaluates a state (pass rate for programs, alignment score for natural language, etc.)\n    Terminal state: the program reaches the maximum length or the terminal token is generated.\n    \"\"\"\n    def __init__(self, terminal_token, horizon, reward_func):\n        \"\"\"\n        Args:\n            terminal_token: The token for the terminal action\n            horizon: the maximum length including the prompt\n        \"\"\"\n        self.terminal_token = terminal_token\n        self.horizon = horizon\n        self.get_reward = reward_func\n    def reset(self, input_ids, attention_mask=None):\n        if attention_mask is not None:\n            attention_mask = attention_mask\n        else:\n            attention_mask = torch.ones_like(input_ids)"
+        },
+        {
+            "comment": "This code defines a class for an environment used in language modeling with MCTS. The state is initialized with input_ids and attention_mask, and the transition function updates the state by appending the given action to the input_ids and attention_mask. If the new state is terminal (reaches maximum length or finishes) a reward is assigned, otherwise reward is 0. Done flag indicates if the step is finished.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/envs/language_env.py\":33-59",
+            "content": "        self.state = (input_ids, attention_mask)\n        self.input_len = len(input_ids)\n        return self.state\n    def transition(self, s, a, is_model_dynamic=False):\n        ids, attention_mask = s\n        # s is a one-dimensional tensor, a is a token id (scalar), concatenate them to form a new state\n        next_ids = torch.cat([ids, torch.tensor([a]).to(ids.device)])\n        # append a 1 to the attention mask\n        attention_mask = torch.cat([attention_mask, torch.tensor([1]).to(attention_mask.device)])\n        if a == self.terminal_token or len(next_ids) == self.horizon:\n            # either the text finishes, or the state reaches the maximum length\n            done = True\n        else:\n            done = False\n        if done:\n            reward = self.get_reward((next_ids, attention_mask))\n        else:\n            reward = 0  # no intermediate reward\n        return (next_ids, attention_mask), reward, done\n    def step(self, action):\n        self.state, reward, done = self.transition(self.state, action)"
+        },
+        {
+            "comment": "Line 61-65: The function returns the state, reward, and done flag, with an empty dictionary as arguments.\n\nequality_operator: Compares two tensors s1 and s2 by checking if every element in them is equal using all() and torch.equal().",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/envs/language_env.py\":61-65",
+            "content": "        return self.state, reward, done, {}\n    def equality_operator(self, s1, s2):\n        # s1 and s2 are two tensors\n        return all(torch.equal(x1, x2) for x1, x2 in zip(s1, s2))"
+        }
+    ]
+}

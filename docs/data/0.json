@@ -1,0 +1,541 @@
+{
+    "0": {
+        "file_id": 0,
+        "content": "/README.md",
+        "type": "filepath"
+    },
+    "1": {
+        "file_id": 0,
+        "content": "This code is a modified version of Dyna Gym, utilizing Monte-Carlo tree search for large language model decoding. It offers installation instructions and examples such as GPT-2 and UCT for sentiment analysis, alongside classic planning domains for debugging purposes.",
+        "type": "summary"
+    },
+    "2": {
+        "file_id": 0,
+        "content": "# Monte-Carlo Tree Search for Large Language Models\nThis repository is a fork of [Dyna Gym](https://github.com/SuReLI/dyna-gym) and extends its functionality to focus on using Monte-Carlo tree search for decoding large language models (LLMs).\n## Installation\nFirst, create a new Conda environment (optional):\n```bash\nconda create --name mcts-for-llm python=3.10\nconda activate mcts-for-llm\n```\nWe tested on python 3.10.0. Other versions may work as well.\nThen, git clone this repo and install the package:\n```bash\npip install -e .\n```\n## Examples\n### Using GPT-2 and UCT for Language Alignment with Positive Sentiment Reward\nRun the following command to generate texts using the GPT-2 model, guided by UCT (Upper Confidence Bound applied to Trees) for language alignment. Positive sentiment is used as the reward.\n```bash\npython examples/uct_language_alignment.py\n```\n### Classic Planning Domains (Non-LLM)\nThis repository also includes some classic planning domains derived from the original Dyna Gym repo. These examples don't use LLMs but may be useful for debugging purposes.",
+        "type": "code",
+        "location": "/README.md:1-33"
+    },
+    "3": {
+        "file_id": 0,
+        "content": "This code is a forked version of Dyna Gym that focuses on using Monte-Carlo tree search for decoding large language models. It provides installation instructions and examples, including GPT-2 and UCT for language alignment with positive sentiment reward. It also includes classic planning domains (non-LLM) useful for debugging purposes.",
+        "type": "comment"
+    },
+    "4": {
+        "file_id": 0,
+        "content": "```bash\npython examples/uct_nscartpole_v0.py\npython examples/uct_nscartpole_v1.py\n...\n```",
+        "type": "code",
+        "location": "/README.md:35-39"
+    },
+    "5": {
+        "file_id": 0,
+        "content": "These lines are running Python examples for the UCT algorithm on different versions of CartPole, a classic Atari game environment. This could be part of an AI/machine learning experiment involving reinforcement learning and Monte Carlo Tree Search.",
+        "type": "comment"
+    },
+    "6": {
+        "file_id": 1,
+        "content": "/dyna_gym/__init__.py",
+        "type": "filepath"
+    },
+    "7": {
+        "file_id": 1,
+        "content": "The code registers several environment variants and a new \"LanguageEnv-v0\" using DynaGym, associating tasks with specific entry points.",
+        "type": "summary"
+    },
+    "8": {
+        "file_id": 1,
+        "content": "from gym.envs.registration import register\nregister(\n    id='RandomNSMDP-v0',\n    entry_point='dyna_gym.envs:RandomNSMDP',\n)\nregister(\n    id='NSFrozenLake-v0',\n    entry_point='dyna_gym.envs:NSFrozenLakeV0',\n)\nregister(\n    id='NSFrozenLake-v1',\n    entry_point='dyna_gym.envs:NSFrozenLakeV1',\n)\nregister(\n    id='NSFrozenLake-v2',\n    entry_point='dyna_gym.envs:NSFrozenLakeV2',\n)\nregister(\n    id='NSCliff-v0',\n    entry_point='dyna_gym.envs:NSCliffV0',\n)\nregister(\n    id='NSCliff-v1',\n    entry_point='dyna_gym.envs:NSCliffV1',\n)\nregister(\n    id='NSCliff-v2',\n    entry_point='dyna_gym.envs:NSCliffV2',\n)\nregister(\n    id='NSBridge-v0',\n    entry_point='dyna_gym.envs:NSBridgeV0',\n)\nregister(\n    id='NSBridge-v1',\n    entry_point='dyna_gym.envs:NSBridgeV1',\n)\nregister(\n    id='NSBridge-v2',\n    entry_point='dyna_gym.envs:NSBridgeV2',\n)\nregister(\n    id='NSCartPole-v0',\n    entry_point='dyna_gym.envs:NSCartPoleV0',\n)\nregister(\n    id='NSCartPole-v1',\n    entry_point='dyna_gym.envs:NSCartPoleV1',\n)\nregister(\n    id='NSCartPole-v2',\n    entry_point='dyna_gym.envs:NSCartPoleV2',",
+        "type": "code",
+        "location": "/dyna_gym/__init__.py:1-65"
+    },
+    "9": {
+        "file_id": 1,
+        "content": "This code registers several environment variants (v0, v1, v2) for different tasks like RandomNSMDP, NSFrozenLake, NSCliff, NSBridge, and NSCartPole in DynaGym. It uses the Gym library's registration feature to associate each task with a specific entry point.",
+        "type": "comment"
+    },
+    "10": {
+        "file_id": 1,
+        "content": ")\nregister(\n    id='LanguageEnv-v0',\n    entry_point='dyna_gym.envs:LanguageEnv',\n)",
+        "type": "code",
+        "location": "/dyna_gym/__init__.py:66-71"
+    },
+    "11": {
+        "file_id": 1,
+        "content": "The code is registering a new environment named \"LanguageEnv-v0\" using the DynaGym framework, where the entry point is set to 'dyna_gym.envs:LanguageEnv'.",
+        "type": "comment"
+    },
+    "12": {
+        "file_id": 2,
+        "content": "/dyna_gym/agents/mcts.py",
+        "type": "filepath"
+    },
+    "13": {
+        "file_id": 2,
+        "content": "This code implements MCTS algorithm for a reinforcement learning agent in dyna-gym environment, initializing trees and updating value functions through backpropagation. The class includes attributes like rollouts, horizon, gamma, is_model_dynamic, default_policy, and lambda_coeff, with display method showing attribute values and act method using mcts_procedure to get optimal action from environment.",
+        "type": "summary"
+    },
+    "14": {
+        "file_id": 2,
+        "content": "\"\"\"\nMCTS Algorithm\nRequired features of the environment:\nenv.state\nenv.action_space\nenv.transition(s ,a , is_model_dynamic)\nenv.equality_operator(s1, s2)\n\"\"\"\nimport random\nfrom gym import spaces\nfrom tqdm import tqdm\nfrom dyna_gym.utils.utils import combinations, multigpu_breakpoint\ndef chance_node_value(node, mode=\"best\"):\n    \"\"\"\n    Value of a chance node\n    \"\"\"\n    if len(node.sampled_returns) == 0:\n        return 0\n    elif mode == \"best\":\n        # max return (reasonable because the model is deterministic?)\n        return max(node.sampled_returns)\n    elif mode == \"sample\":\n        # Use average return\n        return sum(node.sampled_returns) / len(node.sampled_returns)\n    else:\n        raise Exception(f\"Unknown tree search mode {mode}\")\ndef mcts_tree_policy(children):\n    return random.choice(children)\ndef mcts_procedure(ag, tree_policy, env, done, root=None, term_cond=None, ts_mode=\"sample\"):\n    \"\"\"\n    Compute the entire MCTS procedure wrt to the selected tree policy.\n    Funciton tree_policy is a function taking an agent + a list of ChanceNodes as argument",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:1-40"
+    },
+    "15": {
+        "file_id": 2,
+        "content": "This code defines the MCTS (Monte Carlo Tree Search) algorithm for a reinforcement learning agent. The algorithm uses tree search procedures and chance nodes to explore and exploit the environment's state space. It also provides functions for determining chance node values and selecting tree policies, as well as handling termination conditions and modes for return calculation.",
+        "type": "comment"
+    },
+    "16": {
+        "file_id": 2,
+        "content": "    and returning the one chosen by the tree policy.\n    Args:\n        ag: the agent\n        tree_policy: the action selection policy\n        env: the gym environment\n        done: whether the current state is terminal\n        root: the root of the tree, reuse the tree if not None, otherwise create a new tree\n        term_cond: termination condition, if not None, the procedure will terminate when term_cond() is True\n        ts_mode: the mode for tree search, can be 'sample', 'best'\n    \"\"\"\n    decision_node_num = 0\n    if root is not None:\n        # if using existing tree, making sure the root is updated correctly\n        assert root.state == env.state\n    else:\n        # create an empty tree\n        root = DecisionNode(None, env.state, ag.action_space.copy(), done, default_policy=ag.default_policy, id=decision_node_num)\n        decision_node_num += 1\n    for _ in tqdm(range(ag.rollouts), desc=\"Rolling out\", leave=False):\n        if term_cond is not None and term_cond():\n            break\n        rewards = [] # Rewards collected along the tree for the current rollout",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:41-64"
+    },
+    "17": {
+        "file_id": 2,
+        "content": "This function initializes a new tree if no existing one is provided, otherwise ensures the root is updated correctly. It then performs rollouts (a specified number based on agent configuration) while optionally terminating early if a provided condition is met. Rewards are collected along the tree for each rollout.",
+        "type": "comment"
+    },
+    "18": {
+        "file_id": 2,
+        "content": "        node = root # Current node\n        terminal = done\n        # Selection\n        select = True\n        while select:\n            if type(node) == DecisionNode: # DecisionNode\n                if node.is_terminal:\n                    select = False # Selected a terminal DecisionNode\n                else:\n                    node = tree_policy(node.children) # Move down the tree, node is now a ChanceNode\n            else: # ChanceNode\n                # Given s, a, sample s' ~ p(s'|s,a), also get the reward r(s,a,s') and whether s' is terminal\n                state_p, reward, terminal = env.transition(node.parent.state, node.action, ag.is_model_dynamic)\n                rewards.append(reward)\n                new_state = True\n                # find if s' is already in the tree, if so point node to the corresponding DecisionNode (and new_state=False)\n                # if not, create a new DecisionNode for s' and point node to it\n                for i in range(len(node.children)):\n                    if env.equality_operator(node.children[i].state, state_p):",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:65-85"
+    },
+    "19": {
+        "file_id": 2,
+        "content": "The code is traversing the tree using a selection process, moving from DecisionNode to ChanceNode. For each ChanceNode, it samples the next state s' and reward r(s,a,s') from the environment. If s' isn't already in the tree, a new DecisionNode is created; otherwise, the existing node is used. The code checks for terminal states and updates select accordingly. Rewards are appended to a list.",
+        "type": "comment"
+    },
+    "20": {
+        "file_id": 2,
+        "content": "                        # s' is already in the tree\n                        node = node.children[i]\n                        new_state = False\n                        break\n                if new_state:\n                    # Selected a node for expansion\n                    select = False\n                    # Expansion to create a new DecisionNode\n                    new_node = DecisionNode(node, state_p, ag.action_space.copy(), terminal, default_policy=ag.default_policy, id=decision_node_num)\n                    node.children.append(new_node)\n                    decision_node_num += 1\n                    node = node.children[-1]\n        # Evaluation\n        # now `rewards` collected all rewards in the ChanceNodes above this node\n        assert(type(node) == DecisionNode)\n        state = node.state\n        current_state = state\n        if ag.default_policy is None:\n            t = 0\n            estimate = 0\n            while (not terminal) and (t < ag.horizon):\n                action = env.action_space.sample()",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:86-110"
+    },
+    "21": {
+        "file_id": 2,
+        "content": "This code snippet is part of the MCTS algorithm for an agent in a game environment. It handles node expansion and evaluation, updating the tree with new nodes as needed. If a new state (s') is encountered, it adds a new DecisionNode to the tree and updates the current node. Then it starts the evaluation process by traversing through the decision tree using the default policy or taking random actions depending on the game's configuration.",
+        "type": "comment"
+    },
+    "22": {
+        "file_id": 2,
+        "content": "                state, reward, terminal = env.transition(state, action, ag.is_model_dynamic)\n                estimate += reward * (ag.gamma**t)\n                t += 1\n        else:\n            if not node.is_terminal:\n                # follow the default policy to get a terminal state\n                state = ag.default_policy.get_predicted_sequence(state)\n                estimate = env.get_reward(state)\n                ag.rolled_out_trajectories.append(state[0])\n                ag.rolled_out_rewards.append(estimate)\n                # also save this to current nodes for possible visualization\n                node.info['complete_program'] = state[0]\n            else:\n                # the rewards are defined on terminating actions, the terminal states have no rewards\n                estimate = 0\n        if ag.lambda_coeff > 0:\n            assert ag.value_func is not None, \"value_func must be provided if lambda_coeff > 0\"\n            state_ids = current_state[0]\n            value = ag.value_func(state_ids)\n            estimate = ag.lambda_coeff * value + (1 - ag.lambda_coeff) * estimate",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:111-133"
+    },
+    "23": {
+        "file_id": 2,
+        "content": "This code performs Monte Carlo Tree Search (MCTS) in the dyna-gym environment. It calculates rewards and updates the value function for a given state and action based on whether the resulting state is terminal or not. If lambda_coeff is greater than zero, it adjusts the estimate with the value function.",
+        "type": "comment"
+    },
+    "24": {
+        "file_id": 2,
+        "content": "        # Backpropagation\n        node.visits += 1\n        node = node.parent\n        assert(type(node) == ChanceNode)\n        while node:\n            if len(rewards) != 0:\n                estimate = rewards.pop() + ag.gamma * estimate\n            node.sampled_returns.append(estimate)\n            node.parent.visits += 1\n            node = node.parent.parent\n        # should finish backpropagating all the rewards\n        assert len(rewards) == 0\n    return max(root.children, key=lambda n: chance_node_value(n, mode=ts_mode)).action, root\nclass DecisionNode:\n    \"\"\"\n    Decision node class, labelled by a state\n    Args:\n        default_policy: default policy, used to prioritize and filter possible actions\n    \"\"\"\n    def __init__(self, parent, state, possible_actions=[], is_terminal=False, default_policy=None, id=None):\n        self.id = id\n        self.parent = parent\n        self.state = state\n        self.is_terminal = is_terminal\n        if self.parent is None: # Root node\n            self.depth = 0\n        else: # Non root node",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:135-166"
+    },
+    "25": {
+        "file_id": 2,
+        "content": "The code is performing backpropagation of rewards in Monte Carlo Tree Search (MCTS) agent. It updates the visited count and stores sampled returns at each node, starting from the leaf node and moving up to the root node. The process ends when all rewards have been propagated. The code also includes an assert statement to ensure that there are no remaining rewards after backpropagation.",
+        "type": "comment"
+    },
+    "26": {
+        "file_id": 2,
+        "content": "            self.depth = parent.depth + 1\n        if default_policy is None:\n            self.possible_actions = possible_actions\n            random.shuffle(self.possible_actions)\n            # if no default policy is provided, assume selection probability is uniform\n            self.action_scores = [1.0 / len(self.possible_actions)] * len(self.possible_actions)\n        else:\n            # get possible actions from default policy\n            top_k_predict, top_k_scores = default_policy.get_top_k_tokens(self.state)\n            self.possible_actions = top_k_predict\n            self.action_scores = top_k_scores\n        # populate its children\n        self.children = [ChanceNode(self, (act, score))\n                         for act, score in zip(self.possible_actions, self.action_scores)]\n        self.explored_children = 0\n        # this decision node should be visited at least once, otherwise p-uct makes no sense for this node\n        self.visits = 1\n        # used to save any information of the state\n        # we use this for saving complete programs generated from it",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:167-189"
+    },
+    "27": {
+        "file_id": 2,
+        "content": "This code creates a decision node in a Monte Carlo Tree Search (MCTS) algorithm. It sets the depth of the node, initializes action scores and possible actions based on default policy or uniform probability if no default policy is provided. The node populates its children with ChanceNodes using the possible actions and action scores. The node ensures it will be visited at least once for p-uct selection and initializes explored_children and visits variables.",
+        "type": "comment"
+    },
+    "28": {
+        "file_id": 2,
+        "content": "        self.info = {}\n    def is_fully_expanded(self):\n        return all([child.expanded() for child in self.children])\nclass ChanceNode:\n    \"\"\"\n    Chance node class, labelled by a state-action pair\n    The state is accessed via the parent attribute\n    \"\"\"\n    def __init__(self, parent, action_and_score):\n        self.parent = parent\n        self.action = action_and_score[0]\n        self.depth = parent.depth\n        self.children = []\n        self.prob = action_and_score[1] # the probability that this action should be token, provided by default policy\n        self.sampled_returns = []\n    def expanded(self):\n        return len(self.children) > 0\nclass MCTS(object):\n    \"\"\"\n    MCTS agent\n    \"\"\"\n    def __init__(self, action_space, rollouts=100, horizon=100, gamma=0.9, is_model_dynamic=True, default_policy=None):\n        if type(action_space) == spaces.discrete.Discrete:\n            self.action_space = list(combinations(action_space))\n        else:\n            self.action_space = action_space\n        self.n_actions = len(self.action_space)",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:190-222"
+    },
+    "29": {
+        "file_id": 2,
+        "content": "This code defines a class for the MCTS agent in a reinforcement learning context. It includes an initialization method that takes action space, number of rollouts, horizon, discount factor, is_model_dynamic flag, and default policy as parameters. The class also contains methods for selecting actions, updating node states, and expanding nodes based on the chosen action. The code defines ChanceNode and MCTS classes to represent nodes in the tree and the agent itself.",
+        "type": "comment"
+    },
+    "30": {
+        "file_id": 2,
+        "content": "        self.rollouts = rollouts\n        self.horizon = horizon\n        self.gamma = gamma\n        self.is_model_dynamic = is_model_dynamic\n        self.default_policy = default_policy\n        self.lambda_coeff = 0.0\n    def display(self):\n        \"\"\"\n        Display infos about the attributes.\n        \"\"\"\n        print('Displaying MCTS agent:')\n        print('Action space       :', self.action_space)\n        print('Number of actions  :', self.n_actions)\n        print('Rollouts           :', self.rollouts)\n        print('Horizon            :', self.horizon)\n        print('Gamma              :', self.gamma)\n        print('Is model dynamic   :', self.is_model_dynamic)\n    def act(self, env, done):\n        opt_act, _, = mcts_procedure(self, mcts_tree_policy, env, done)\n        return opt_act",
+        "type": "code",
+        "location": "/dyna_gym/agents/mcts.py:223-244"
+    },
+    "31": {
+        "file_id": 2,
+        "content": "This code defines a class for an MCTS agent with attributes like rollouts, horizon, gamma, is_model_dynamic, default_policy, and lambda_coeff. The display method shows the values of these attributes. The act method uses the mcts_procedure to get the optimal action from the environment based on the current state and done condition.",
+        "type": "comment"
+    },
+    "32": {
+        "file_id": 3,
+        "content": "/dyna_gym/agents/my_random_agent.py",
+        "type": "filepath"
+    },
+    "33": {
+        "file_id": 3,
+        "content": "This code defines a Random Agent class, which takes an action space as input and returns a random action from the given space. The class includes methods for resetting attributes and displaying agent information.",
+        "type": "summary"
+    },
+    "34": {
+        "file_id": 3,
+        "content": "\"\"\"\nA Random Agent given as an example\n\"\"\"\nfrom gym import spaces\nimport dyna_gym.utils.utils as utils\nclass MyRandomAgent(object):\n    def __init__(self, action_space):\n        self.action_space = action_space\n    def reset(self, p=None):\n        \"\"\"\n        Reset the attributes.\n        Expect to receive them in the same order as init.\n        p : list of parameters\n        \"\"\"\n        if p is not None:\n            utils.assert_types(p,[spaces.discrete.Discrete])\n            self.__init__(p[0])\n    def display(self):\n        \"\"\"\n        Display infos about the attributes.\n        \"\"\"\n        print('Displaying Random agent:')\n        print('Action space       :', self.action_space)\n    def act(self, observation=None, reward=None, done=None):\n        return self.action_space.sample()",
+        "type": "code",
+        "location": "/dyna_gym/agents/my_random_agent.py:1-30"
+    },
+    "35": {
+        "file_id": 3,
+        "content": "This code defines a Random Agent class, which takes an action space as input and returns a random action from the given space. The class includes methods for resetting attributes and displaying agent information.",
+        "type": "comment"
+    },
+    "36": {
+        "file_id": 4,
+        "content": "/dyna_gym/agents/uct.py",
+        "type": "filepath"
+    },
+    "37": {
+        "file_id": 4,
+        "content": "The code defines a UCT agent for Dyna-Gym library using Monte Carlo Tree Search (MCTS) for decision-making with discrete and continuous action spaces. It includes reset, display, and UCB calculation methods, along with an 'act' method that performs MCTS to select optimal actions in the environment.",
+        "type": "summary"
+    },
+    "38": {
+        "file_id": 4,
+        "content": "\"\"\"\nUCT Algorithm\nRequired features of the environment:\nenv.state\nenv.action_space\nenv.transition(s, a, is_model_dynamic)\nenv.equality_operator(s1, s2)\n\"\"\"\nimport dyna_gym.agents.mcts as mcts\nfrom dyna_gym.utils.utils import combinations\nfrom math import sqrt, log\nfrom gym import spaces\nclass UCT(object):\n    \"\"\"\n    UCT agent\n    \"\"\"\n    def __init__(\n            self,\n            action_space=[],\n            rollouts=100,\n            horizon=100,\n            gamma=0.9,\n            ucb_constant=6.36396103068,\n            ucb_base=50.,\n            is_model_dynamic=True,\n            width=None,\n            default_policy=None,\n            ts_mode='sample',\n            reuse_tree=False,\n            alg='uct',\n            lambda_coeff=0.,\n            value_func=None,\n    ):\n        \"\"\"\n        Args:\n            action_space: action space of the environment\n            rollouts: total number of rollouts (the number of loops over selection, expansion, simulation and backpropagation)\n            horizon: maximum length of the rollouts",
+        "type": "code",
+        "location": "/dyna_gym/agents/uct.py:1-42"
+    },
+    "39": {
+        "file_id": 4,
+        "content": "The code above defines a UCT agent for the Dyna-Gym library. It takes various parameters such as action_space, rollouts, horizon, gamma, ucb_constant, ucb_base, is_model_dynamic, width, default_policy, ts_mode, reuse_tree, alg, lambda_coeff, and value_func. The UCT agent uses Monte Carlo Tree Search to make decisions in the environment. It also requires certain features from the environment such as state, action space, transition function, and equality operator.",
+        "type": "comment"
+    },
+    "40": {
+        "file_id": 4,
+        "content": "            gamma: discount factor\n            ucb_constant: constant for the UCB exploration\n            ucb_base: base for the UCB exploration, only used in var_p_uct\n            is_model_dynamic: whether the model is dynamic\n            width: number of children for each node, default is num of actions\n            default_policy: an optional default policy that returns a most-likely sequence and top-k most-likely next tokens\n            ts_mode: the mode for tree search, can be 'sample', 'best'\n            reuse_tree: whether to reuse the tree from the previous step if the algorithm is called multiple times\n            alg: exact UCT algorithm to use, can be 'uct', 'p_uct', 'var_p_uct'\n        \"\"\"\n        if type(action_space) == spaces.discrete.Discrete:\n            self.action_space = list(combinations(action_space))\n        else:\n            self.action_space = action_space\n        self.n_actions = len(self.action_space)\n        self.rollouts = rollouts\n        self.horizon = horizon\n        self.gamma = gamma",
+        "type": "code",
+        "location": "/dyna_gym/agents/uct.py:43-60"
+    },
+    "41": {
+        "file_id": 4,
+        "content": "This code initializes a UCT agent's parameters, including the action space, number of rollouts, horizon, and discount factor. It also determines the algorithm to use based on the input arguments. The code handles discrete and continuous action spaces differently, creating lists of combinations for discrete spaces and directly assigning continuous spaces.",
+        "type": "comment"
+    },
+    "42": {
+        "file_id": 4,
+        "content": "        self.ucb_constant = ucb_constant\n        self.is_model_dynamic = is_model_dynamic\n        # the number of children for each node, default is num of actions\n        self.width = width or self.n_actions\n        self.default_policy = default_policy\n        self.ts_mode = ts_mode\n        self.reuse_tree = reuse_tree\n        act_selection_criteria = {\n            'uct': self.ucb,\n            'p_uct': self.p_ucb,\n            'var_p_uct': self.var_p_ucb\n        }\n        if alg in ['uct', 'p_uct', 'var_p_uct']:\n            self.tree_policy = lambda children: max(children, key=act_selection_criteria[alg])\n            if alg == 'var_p_uct':\n                self.ucb_base = ucb_base\n        else:\n            raise Exception(f'unknown uct alg {alg}')\n        self.lambda_coeff = lambda_coeff\n        self.value_func = value_func\n        self.reset()\n    def reset(self):\n        self.root = None\n        self.rolled_out_trajectories = []\n        self.rolled_out_rewards = []\n    def display(self):\n        \"\"\"\n        Display infos about the attributes.",
+        "type": "code",
+        "location": "/dyna_gym/agents/uct.py:61-94"
+    },
+    "43": {
+        "file_id": 4,
+        "content": "The code defines a UCT agent class with various parameters such as ucb_constant, is_model_dynamic, width, default_policy, ts_mode, reuse_tree, act_selection_criteria. It also includes methods reset and display for initializing and displaying information about the agent's attributes.",
+        "type": "comment"
+    },
+    "44": {
+        "file_id": 4,
+        "content": "        \"\"\"\n        print('Displaying UCT agent:')\n        print('Number of actions  :', self.n_actions)\n        print('Rollouts           :', self.rollouts)\n        print('Horizon            :', self.horizon)\n        print('Gamma              :', self.gamma)\n        print('UCB constant       :', self.ucb_constant)\n        print('Is model dynamic   :', self.is_model_dynamic)\n        print('Expansion Width    :', self.width)\n        print()\n    def ucb(self, node):\n        \"\"\"\n        Upper Confidence Bound of a chance node\n        \"\"\"\n        return mcts.chance_node_value(node)\\\n            + self.ucb_constant * sqrt(log(node.parent.visits)) / (1 + len(node.sampled_returns))\n    def p_ucb(self, node):\n        \"\"\"\n        Upper Confidence Bound of a chance node, weighted by prior probability\n        \"\"\"\n        return mcts.chance_node_value(node)\\\n            + self.ucb_constant * node.prob * sqrt(log(node.parent.visits)) / (1 + len(node.sampled_returns))\n    def var_p_ucb(self, node):\n        \"\"\"\n        Upper Confidence Bound of a chance node, the ucb exploration weight is a variable",
+        "type": "code",
+        "location": "/dyna_gym/agents/uct.py:95-122"
+    },
+    "45": {
+        "file_id": 4,
+        "content": "This code defines an agent using the Upper Confidence Bound (UCB) algorithm for Monte Carlo Tree Search (MCTS). The agent has methods to calculate UCB and weighted UCB for chance nodes. It also includes parameters such as number of actions, rollouts, horizon, gamma, and is_model_dynamic.",
+        "type": "comment"
+    },
+    "46": {
+        "file_id": 4,
+        "content": "        \"\"\"\n        ucb_parameter = log((node.parent.visits + self.ucb_base + 1) / self.ucb_base) + self.ucb_constant\n        return mcts.chance_node_value(node)\\\n            + ucb_parameter * node.prob * sqrt(log(node.parent.visits)) / (1 + len(node.sampled_returns))\n    def act(self, env, done, term_cond=None):\n        root = self.root if self.reuse_tree else None\n        opt_act, self.root = mcts.mcts_procedure(self, self.tree_policy, env, done, root=root, term_cond=term_cond)\n        return opt_act",
+        "type": "code",
+        "location": "/dyna_gym/agents/uct.py:123-131"
+    },
+    "47": {
+        "file_id": 4,
+        "content": "This code defines an 'act' method for a UCT agent, which performs the Monte Carlo Tree Search (MCTS) algorithm to select an optimal action in the environment. The method takes in an environment and done condition as input parameters, and returns the optimal action. It also initializes or reuses the tree based on the 'reuse_tree' flag, and utilizes a 'tree_policy' for the search process.",
+        "type": "comment"
+    },
+    "48": {
+        "file_id": 5,
+        "content": "/dyna_gym/default_policy/default_policy.py",
+        "type": "filepath"
+    },
+    "49": {
+        "file_id": 5,
+        "content": "This code defines an abstract class, DefaultPolicy, with two abstract methods: get_predicted_sequence and get_top_k_tokens. It takes environment and horizon as parameters in its constructor.",
+        "type": "summary"
+    },
+    "50": {
+        "file_id": 5,
+        "content": "from abc import abstractmethod\nimport gym\nclass DefaultPolicy:\n    def __init__(self, env: gym.Env, horizon: int):\n        \"\"\"\n        Args:\n            k: number of top k predictions to return\n            env: environment\n            horizon: horizon of the environment (the maximum number of steps in an episode)\n        \"\"\"\n        self.env = env\n        self.horizon = horizon\n    @abstractmethod\n    def get_predicted_sequence(self, state, horizon: int = None):\n        pass\n    @abstractmethod\n    def get_top_k_tokens(self, state):\n        pass",
+        "type": "code",
+        "location": "/dyna_gym/default_policy/default_policy.py:1-23"
+    },
+    "51": {
+        "file_id": 5,
+        "content": "This code defines an abstract class, DefaultPolicy, with two abstract methods: get_predicted_sequence and get_top_k_tokens. It takes environment and horizon as parameters in its constructor.",
+        "type": "comment"
+    },
+    "52": {
+        "file_id": 6,
+        "content": "/dyna_gym/default_policy/hf_default_policy.py",
+        "type": "filepath"
+    },
+    "53": {
+        "file_id": 6,
+        "content": "HuggingFaceDefaultPolicy uses a transformer model to make decisions in gym environments, employing generate_state and get_top_k_tokens functions for sequence prediction. The code calculates top k probabilities and indices, finding tokens with cumulative probability under 1.",
+        "type": "summary"
+    },
+    "54": {
+        "file_id": 6,
+        "content": "from dyna_gym.default_policy.default_policy import DefaultPolicy\nimport gym\nimport torch\nfrom transformers import PreTrainedModel\nclass HuggingFaceDefaultPolicy(DefaultPolicy):\n    \"\"\"\n    Default policy that uses a HuggingFace transformer model.\n    \"\"\"\n    def __init__(\n            self,\n            env: gym.Env,\n            horizon: int,\n            model: PreTrainedModel,\n            generation_args: dict = {},\n    ):\n        super().__init__(env, horizon)\n        self.model = model\n        self.generate_args = generation_args\n    @torch.no_grad()\n    def get_predicted_sequence(self, state, horizon=None):\n        ids, attention_mask = state\n        horizon = horizon if horizon is not None else self.horizon\n        # Create a batch dimension\n        input_data = ids.unsqueeze(0)\n        attention_mask = attention_mask.unsqueeze(0)\n        outputs = self.model.generate(\n            inputs=input_data,\n            attention_mask=attention_mask,\n            max_length=horizon,\n            early_stopping=True,\n            return_dict_in_generate=True,",
+        "type": "code",
+        "location": "/dyna_gym/default_policy/hf_default_policy.py:1-38"
+    },
+    "55": {
+        "file_id": 6,
+        "content": "HuggingFaceDefaultPolicy is a DefaultPolicy class that utilizes a HuggingFace transformer model for policy-based decision making. It takes in a gym environment, horizon, and pretrained model as inputs. get_predicted_sequence method generates the predicted sequence based on input data and attention mask with maximum length equal to either specified or default horizon.",
+        "type": "comment"
+    },
+    "56": {
+        "file_id": 6,
+        "content": "            use_cache=True,\n            **self.generate_args\n        )\n        sequence = outputs.sequences.squeeze(0)\n        attention_mask = attention_mask.squeeze(0)\n        # update attention mask\n        num_new_tokens = sequence.shape[-1] - input_data.shape[-1]\n        attention_mask = torch.cat([attention_mask, torch.ones(num_new_tokens).to(attention_mask.device)])\n        return sequence, attention_mask\n    @torch.no_grad()\n    def get_top_k_tokens(self, state):\n        k = self.generate_args['top_k']\n        p = self.generate_args['top_p']\n        ids, attention_mask = state\n        # Create a batch dimension\n        input_data = ids.unsqueeze(0)\n        attention_mask = attention_mask.unsqueeze(0)\n        outputs = self.model(\n            input_ids=input_data,\n            attention_mask=attention_mask,\n        )\n        # Assuming the model returns logits for tokens\n        logits = outputs.logits[0][-1]  # First (and only) batch, last token\n        # Convert logits to probabilities\n        all_probs = torch.softmax(logits, dim=-1)",
+        "type": "code",
+        "location": "/dyna_gym/default_policy/hf_default_policy.py:39-72"
+    },
+    "57": {
+        "file_id": 6,
+        "content": "This code defines two functions: \"generate_state\" and \"get_top_k_tokens\". The generate_state function takes inputs, passes them through a model, extracts the sequence and attention mask, and updates the attention mask. The get_top_k_tokens function takes a state, uses it to input into the model, obtains logits for tokens, converts logits to probabilities, and returns them.",
+        "type": "comment"
+    },
+    "58": {
+        "file_id": 6,
+        "content": "        # Get the top k probabilities and their indices, already sorted\n        topk_probs, topk_indices = torch.topk(all_probs, k, sorted=True)\n        # Compute the cumulative sum of the sorted probabilities\n        cumsum_probs = torch.cumsum(topk_probs, dim=-1)\n        # Find tokens where the cumulative sum exceeds p\n        exceed_p_mask = cumsum_probs > p\n        # Find the smallest set of tokens whose cumulative probability exceeds p\n        mask = exceed_p_mask.cumsum(dim=-1) <= 1\n        # Apply the mask to get final tokens and their probabilities\n        final_indices = topk_indices[mask].tolist()\n        final_probs = topk_probs[mask].tolist()\n        return final_indices, final_probs",
+        "type": "code",
+        "location": "/dyna_gym/default_policy/hf_default_policy.py:74-90"
+    },
+    "59": {
+        "file_id": 6,
+        "content": "This code calculates the top k probabilities and their indices for a given input, then computes the cumulative sum of sorted probabilities. It finds tokens where the cumulative sum exceeds a threshold p, and selects the smallest set of tokens whose cumulative probability is less than or equal to 1. The function returns final token indices and their probabilities.",
+        "type": "comment"
+    },
+    "60": {
+        "file_id": 7,
+        "content": "/dyna_gym/envs/language_env.py",
+        "type": "filepath"
+    },
+    "61": {
+        "file_id": 7,
+        "content": "LanguageEnv is a Gym environment for language generation using MCTS, with state initialized by input_ids and attention_mask. It assigns rewards on terminal states and uses done flag to indicate completion. The function returns state, reward, and done flag on an empty dictionary argument, while equality_operator compares two tensors for element-wise equality.",
+        "type": "summary"
+    },
+    "62": {
+        "file_id": 7,
+        "content": "from collections import OrderedDict\nimport gym\nimport torch\nclass LanguageEnv(gym.Env):\n    \"\"\"\n    Langauge generation environment.\n    State: a list of tokens.\n    Action: a token (an integer).\n    Transition: the next state is the current state concatenated with the action.\n    Reward: an external function that evaluates a state (pass rate for programs, alignment score for natural language, etc.)\n    Terminal state: the program reaches the maximum length or the terminal token is generated.\n    \"\"\"\n    def __init__(self, terminal_token, horizon, reward_func):\n        \"\"\"\n        Args:\n            terminal_token: The token for the terminal action\n            horizon: the maximum length including the prompt\n        \"\"\"\n        self.terminal_token = terminal_token\n        self.horizon = horizon\n        self.get_reward = reward_func\n    def reset(self, input_ids, attention_mask=None):\n        if attention_mask is not None:\n            attention_mask = attention_mask\n        else:\n            attention_mask = torch.ones_like(input_ids)",
+        "type": "code",
+        "location": "/dyna_gym/envs/language_env.py:1-32"
+    },
+    "63": {
+        "file_id": 7,
+        "content": "LanguageEnv is a Gym environment for language generation. It utilizes the OrderedDict and requires an external reward function. The reset method accepts input_ids and attention_mask as arguments.",
+        "type": "comment"
+    },
+    "64": {
+        "file_id": 7,
+        "content": "        self.state = (input_ids, attention_mask)\n        self.input_len = len(input_ids)\n        return self.state\n    def transition(self, s, a, is_model_dynamic=False):\n        ids, attention_mask = s\n        # s is a one-dimensional tensor, a is a token id (scalar), concatenate them to form a new state\n        next_ids = torch.cat([ids, torch.tensor([a]).to(ids.device)])\n        # append a 1 to the attention mask\n        attention_mask = torch.cat([attention_mask, torch.tensor([1]).to(attention_mask.device)])\n        if a == self.terminal_token or len(next_ids) == self.horizon:\n            # either the text finishes, or the state reaches the maximum length\n            done = True\n        else:\n            done = False\n        if done:\n            reward = self.get_reward((next_ids, attention_mask))\n        else:\n            reward = 0  # no intermediate reward\n        return (next_ids, attention_mask), reward, done\n    def step(self, action):\n        self.state, reward, done = self.transition(self.state, action)",
+        "type": "code",
+        "location": "/dyna_gym/envs/language_env.py:34-60"
+    },
+    "65": {
+        "file_id": 7,
+        "content": "This code defines a class for an environment used in language modeling with MCTS. The state is initialized with input_ids and attention_mask, and the transition function updates the state by appending the given action to the input_ids and attention_mask. If the new state is terminal (reaches maximum length or finishes) a reward is assigned, otherwise reward is 0. Done flag indicates if the step is finished.",
+        "type": "comment"
+    },
+    "66": {
+        "file_id": 7,
+        "content": "        return self.state, reward, done, {}\n    def equality_operator(self, s1, s2):\n        # s1 and s2 are two tensors\n        return all(torch.equal(x1, x2) for x1, x2 in zip(s1, s2))",
+        "type": "code",
+        "location": "/dyna_gym/envs/language_env.py:62-66"
+    },
+    "67": {
+        "file_id": 7,
+        "content": "Line 61-65: The function returns the state, reward, and done flag, with an empty dictionary as arguments.\n\nequality_operator: Compares two tensors s1 and s2 by checking if every element in them is equal using all() and torch.equal().",
+        "type": "comment"
+    },
+    "68": {
+        "file_id": 8,
+        "content": "/dyna_gym/pipelines/__init__.py",
+        "type": "filepath"
+    },
+    "69": {
+        "file_id": 8,
+        "content": "This line imports the \"uct_for_hf_transformer_pipeline\" function from the \"uct_for_hf_transformer\" module in the \"dyna_gym.pipelines\" package, which is likely used for reinforcement learning with Hugging Face Transformers in a Dyna-Gym environment.",
+        "type": "summary"
+    },
+    "70": {
+        "file_id": 8,
+        "content": "from dyna_gym.pipelines.uct_for_hf_transformer import uct_for_hf_transformer_pipeline",
+        "type": "code",
+        "location": "/dyna_gym/pipelines/__init__.py:1-1"
+    },
+    "71": {
+        "file_id": 8,
+        "content": "This line imports the \"uct_for_hf_transformer_pipeline\" function from the \"uct_for_hf_transformer\" module in the \"dyna_gym.pipelines\" package, which is likely used for reinforcement learning with Hugging Face Transformers in a Dyna-Gym environment.",
+        "type": "comment"
+    },
+    "72": {
+        "file_id": 9,
+        "content": "/dyna_gym/pipelines/uct_for_hf_transformer.py",
+        "type": "filepath"
+    },
+    "73": {
+        "file_id": 9,
+        "content": "The code initializes a UCT agent for HuggingFace transformer models and defines a \"generate\" function, adapting reward functions as needed. It resets the environment, plots action trees, and returns results after clearing the agent for next generation call.",
+        "type": "summary"
+    },
+    "74": {
+        "file_id": 9,
+        "content": "from datetime import datetime\nfrom typing import Callable, Sequence\nimport gym\nimport torch\nimport transformers\nfrom dyna_gym.agents import uct\nfrom dyna_gym.default_policy.hf_default_policy import HuggingFaceDefaultPolicy\nfrom dyna_gym.utils.tree_search_utils import print_tree\ndef uct_for_hf_transformer_pipeline(\n        model: transformers.PreTrainedModel,\n        tokenizer: transformers.PreTrainedTokenizer,\n        horizon: int = 100,\n        reward_func: Callable = None,\n        uct_args: dict = {},\n        model_generation_args: dict = {},\n        should_plot_tree: bool = False,\n        reward_func_input_is_state: bool = False,\n) -> Callable:\n    \"\"\"\n    A wrapped UCT agent for HuggingFace transformer.\n    Args:\n        model_name: The name of a HuggingFace transformer model. If provided, will load the model and tokenizer.\n        model: A HuggingFace transformer model.\n        tokenizer: A HuggingFace tokenizer.\n        horizon: The maximum number of steps to take.\n        reward_func: A function that evaluate the reward of a sequence.",
+        "type": "code",
+        "location": "/dyna_gym/pipelines/uct_for_hf_transformer.py:1-31"
+    },
+    "75": {
+        "file_id": 9,
+        "content": "This code defines a function that creates a UCT agent for HuggingFace transformer models. It takes in the model and tokenizer, horizon, reward function, UCT arguments, generation args, and whether to plot the tree. The reward function evaluates the reward of a sequence.",
+        "type": "comment"
+    },
+    "76": {
+        "file_id": 9,
+        "content": "        value_func: A function that evaluate the value of a sequence.\n        uct_args: Arguments for the UCT agent.\n        model_generation_args: Arguments for the model generation.\n        should_plot_tree: Whether to plot the tree after generation.\n        reward_func_input_is_state: Whether the input of the reward function is (token ids, attention masks) or tokenized text.\n    \"\"\"\n    eos_token_id = tokenizer.eos_token_id\n    if not reward_func_input_is_state:\n        # reward function takes tokenized text as input, decode tokeni ids here\n        # if reward function takes token ids as input, this step can be saved\n        def reward_func_(state):\n            ids, attention_mask = state\n            text = tokenizer.decode(ids, skip_special_tokens=True)\n            return reward_func(text)\n    else:\n        reward_func_ = reward_func\n    env = gym.make(\n        'LanguageEnv-v0',\n        terminal_token=eos_token_id,\n        horizon=horizon,\n        reward_func=reward_func_,\n    )\n    default_policy = HuggingFaceDefaultPolicy(",
+        "type": "code",
+        "location": "/dyna_gym/pipelines/uct_for_hf_transformer.py:32-57"
+    },
+    "77": {
+        "file_id": 9,
+        "content": "This code initializes a dynamic environment for the UCT agent using the provided parameters. It also adapts the reward function input based on whether it takes tokenized text or token ids as input, and creates the default policy for the gym environment.",
+        "type": "comment"
+    },
+    "78": {
+        "file_id": 9,
+        "content": "        env=env,\n        horizon=horizon,\n        model=model,\n        generation_args=model_generation_args,\n    )\n    agent = uct.UCT(\n        default_policy=default_policy,\n        **uct_args\n    )\n    ### Run\n    def generate(input_ids=None, input_str=None, attention_mask=None):\n        assert (input_ids is None) != (input_str is None), \"Only provide one of input_ids and input_str\"\n        if input_str is not None:\n            input_ids = tokenizer.encode(input_str)\n            input_ids = torch.tensor(input_ids).to(model.device)\n        if attention_mask is None:\n            # attend to tokens that are not padding\n            if tokenizer.pad_token_id is None:\n                attention_mask = torch.ones_like(input_ids)\n            else:\n                attention_mask = (input_ids != tokenizer.pad_token_id).long()\n            attention_mask = attention_mask.to(model.device)\n        env.reset(input_ids, attention_mask)\n        # do all rollouts in one step\n        env.step(agent.act(env, done=False))\n        # print tree",
+        "type": "code",
+        "location": "/dyna_gym/pipelines/uct_for_hf_transformer.py:58-89"
+    },
+    "79": {
+        "file_id": 9,
+        "content": "This code initializes a UCT agent for a given environment, horizon, and model. It then defines a \"generate\" function that resets the environment, performs rollouts with the UCT agent's actions, and optionally prints the action tree.",
+        "type": "comment"
+    },
+    "80": {
+        "file_id": 9,
+        "content": "        print_tree(agent.root, tokenizer)\n        # optionally, plot the tree and save to a pdf file\n        if should_plot_tree:\n            # plot (and print) the tree\n            from dyna_gym.utils.tree_search_utils import plot_tree\n            filename = f\"tree-{datetime.now().strftime('%Y%m%d-%H%M%S')}\"\n            plot_tree(agent.root, tokenizer, filename)\n            print(f\"Tree plotted and saved to {filename}.pdf\")\n        results = {\n            'output_ids': agent.rolled_out_trajectories,\n            'rewards': agent.rolled_out_rewards,\n            'texts': [tokenizer.decode(ids, skip_special_tokens=True) for ids in agent.rolled_out_trajectories],\n        }\n        # clear for the next generation call\n        agent.reset()\n        return results\n    return generate",
+        "type": "code",
+        "location": "/dyna_gym/pipelines/uct_for_hf_transformer.py:90-110"
+    },
+    "81": {
+        "file_id": 9,
+        "content": "The code plots and saves a tree, then clears the agent for the next generation call. It returns results including output IDs, rewards, and decoded texts.",
+        "type": "comment"
+    },
+    "82": {
+        "file_id": 10,
+        "content": "/dyna_gym/utils/benchmark.py",
+        "type": "filepath"
+    },
+    "83": {
+        "file_id": 10,
+        "content": "This code defines a multithreaded \"benchmark\" function for comparing agent performances in an environment and saves results to CSV, using a pool of agents with specified parameters. It compares UCT and MyRandomAgent on the environment's action space with optional verbose output.",
+        "type": "summary"
+    },
+    "84": {
+        "file_id": 10,
+        "content": "\"\"\"\nGeneric benchmark method:\nRequire:\nagent.reset(param)\nagent.display()\nagent.act(env, done)\nagent.gamma\nenv.reset()\n\"\"\"\nimport gym\nimport csv\nimport numpy as np\nimport statistics as stat\nimport dyna_gym.agents.uct as uct\nimport dyna_gym.agents.my_random_agent as ra\nimport random\nfrom multiprocessing import Pool\ndef csv_write(row, path, mode):\n    with open(path, mode) as csvfile:\n        w = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)\n        w.writerow(row)\ndef run(agent, env, tmax, verbose=False):\n    \"\"\"\n    Run single episode\n    Return: (undiscounted_return, total_time, discounted_return)\n    \"\"\"\n    done = False\n    undiscounted_return, total_time, discounted_return = 0.0, 0, 0.0\n    if verbose:\n        env.render()\n    for t in range(tmax):\n        action = agent.act(env,done)\n        _, r, done, _ = env.step(action)\n        undiscounted_return += r\n        discounted_return += (agent.gamma**t) * r\n        if verbose:\n            env.render()\n        if (t+1 == tmax) or done:\n            total_time = t+1",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:1-44"
+    },
+    "85": {
+        "file_id": 10,
+        "content": "This code defines a function \"run\" that performs a single episode of an environment, given an agent and environment. It returns the undiscounted return, total time, and discounted return. The agent's act() method is called to choose actions in each time step, and the environment's step() method updates the state based on the chosen action. The code also includes a csv_write function for writing results into CSV files.",
+        "type": "comment"
+    },
+    "86": {
+        "file_id": 10,
+        "content": "            break\n    return undiscounted_return, total_time, discounted_return\ndef singlethread_benchmark(env_name, n_env, agent_name_pool, agent_pool, param_pool, param_names_pool, n_epi, tmax, save, paths_pool, verbose=True):\n    \"\"\"\n    Benchmark multiple agents within a single environment.\n    Single thread method.\n    env_name         : name of the generated environment\n    n_env            : number of generated environment\n    agent_name_pool  : list containing the names of the agents for saving purpose\n    agent_pool       : list containing the agent objects\n    param_pool       : list containing lists of parameters for each agent object\n    param_names_pool : list containing the parameters names\n    n_epi            : number of episodes per generated environment\n    tmax             : timeout for each episode\n    save             : save the results or not\n    paths_pool       : list containing the saving path for each agent\n    verbose          : if true, display informations during benchmark\n    \"\"\"",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:45-63"
+    },
+    "87": {
+        "file_id": 10,
+        "content": "This function benchmarks multiple agents within a single environment using a single thread method. It takes in the environment name, number of environments, agent names, agent objects, parameter lists, parameter names, number of episodes, timeout per episode, whether to save results, saving paths, and verbosity level as input parameters. The function returns undiscounted return, total time, and discounted return.",
+        "type": "comment"
+    },
+    "88": {
+        "file_id": 10,
+        "content": "    assert len(agent_name_pool) == len(agent_pool) == len(param_pool)\n    n_agt = len(param_pool)\n    if save:\n        assert len(paths_pool) == n_agt\n        for _agt in range(n_agt): # Init save files for each agent\n            csv_write(['env_name', 'env_number', 'agent_name', 'agent_number'] + param_names_pool[_agt] + ['epi_number', 'undiscounted_return', 'total_time', 'discounted_return'], paths_pool[_agt], 'w')\n    for _env in range(n_env):\n        env = gym.make(env_name)\n        if verbose:\n            print('Created environment', _env+1, '/', n_env)\n            #env.display()\n        for _agt in range(n_agt):\n            agt_name = agent_name_pool[_agt]\n            agt = agent_pool[_agt]\n            n_prm = len(param_pool[_agt])\n            for _prm in range(n_prm):\n                prm = param_pool[_agt][_prm]\n                agt.reset(prm)\n                if verbose:\n                    print('Created agent', _agt+1, '/', n_agt,'with parameters', _prm+1, '/', n_prm)\n                    agt.display()",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:64-84"
+    },
+    "89": {
+        "file_id": 10,
+        "content": "This code initializes agents for a given number of environments. It checks if the lengths of agent name, agent pool, and parameter pool lists are equal. If saving files, it creates save files for each agent. Then, it iterates over the environments, creates each environment, and resets each agent with its corresponding parameters.",
+        "type": "comment"
+    },
+    "90": {
+        "file_id": 10,
+        "content": "                for _epi in range(n_epi):\n                    if verbose:\n                        print('Environment', env_name, _env+1, '/', n_env, 'agent', agt_name, _prm+1, '/', n_prm,'running episode', _epi+1, '/', n_epi)\n                    env.reset()\n                    undiscounted_return, total_time, discounted_return = run(agt, env, tmax)\n                    if save:\n                        csv_write([env_name, _env, agt_name, _prm] + prm + [_epi, undiscounted_return, total_time, discounted_return], paths_pool[_agt], 'a')\ndef multithread_run(env_name, _env, n_env, env, agt_name, _agt, n_agt, agt, _prm, n_prm, prm, tmax, n_epi, _thr, save, path, verbose, save_period):\n    saving_pool = []\n    for _epi in range(n_epi):\n        if verbose:\n            print('Environment', env_name, _env+1, '/', n_env, 'agent', agt_name, _prm+1, '/', n_prm,'running episode', _epi+1, '/', n_epi, '(thread nb', _thr, ')')\n        env.reset()\n        undiscounted_return, total_time, discounted_return = run(agt, env, tmax)",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:85-99"
+    },
+    "91": {
+        "file_id": 10,
+        "content": "This code iterates over a given number of episodes (n_epi), resetting the environment for each episode. It then runs an agent on the environment using the run function, collecting undiscounted return, total time, and discounted return as results. If saving is enabled, it appends the collected data to a file specified by the paths_pool variable. This code also handles threading by including _thr in the print statement.",
+        "type": "comment"
+    },
+    "92": {
+        "file_id": 10,
+        "content": "        if save:\n            saving_pool.append([env_name, _env, agt_name, _prm] + prm + [_thr, undiscounted_return, total_time, discounted_return])\n            if len(saving_pool) == save_period:\n                for row in saving_pool:\n                    csv_write(row, path, 'a')\n                saving_pool = []\n    if save:\n        for row in saving_pool:\n            csv_write(row, path, 'a')\ndef multithread_benchmark(env_name, n_env, agent_name_pool, agent_pool, param_pool, param_names_pool, n_epi, tmax, save, paths_pool, n_thread, verbose=True, save_period=1):\n    \"\"\"\n    Benchmark multiple agents within a single environment.\n    Multithread method.\n    env_name         : name of the generated environment\n    n_env            : number of generated environment\n    agent_name_pool  : list containing the names of the agents for saving purpose\n    agent_pool       : list containing the agent objects\n    param_pool       : list containing lists of parameters for each agent object\n    param_names_pool : list containing the parameters names",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:100-119"
+    },
+    "93": {
+        "file_id": 10,
+        "content": "This code performs benchmarking of multiple agents in a single environment using multithreading. It takes the environment name, number of environments, agent names for saving purposes, agent objects, parameter lists, and parameter names as inputs. It saves the results periodically if required and writes them to a CSV file specified by the user. The benchmarking is performed in a threaded manner with a configurable save interval and optional verbosity.",
+        "type": "comment"
+    },
+    "94": {
+        "file_id": 10,
+        "content": "    n_epi            : number of episodes per generated environment\n    tmax             : timeout for each episode\n    save             : save the results or not\n    paths_pool       : list containing the saving path for each agent\n    n_thread         : number of threads\n    verbose          : if true, display informations during benchmark\n    \"\"\"\n    assert len(agent_name_pool) == len(agent_pool) == len(param_pool)\n    pool = Pool(processes=n_thread)\n    n_agt = len(param_pool)\n    n_epi = int(n_epi / n_thread)\n    if save:\n        assert len(paths_pool) == n_agt\n        for _agt in range(n_agt): # Init save files for each agent\n            csv_write(['env_name', 'env_number', 'agent_name', 'param_number'] + param_names_pool[_agt] + ['thread_number', 'undiscounted_return', 'total_time', 'discounted_return'], paths_pool[_agt], 'w')\n    for _env in range(n_env):\n        env = gym.make(env_name)\n        if verbose:\n            print('Created environment', _env+1, '/', n_env)\n            #env.display()\n        for _agt in range(n_agt):",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:120-140"
+    },
+    "95": {
+        "file_id": 10,
+        "content": "This code is initializing a benchmark process for multiple agents in parallel using multi-threading. It asserts the lengths of agent names, agent pools and parameter pools are equal. The number of episodes per thread and total number of threads are determined based on the input. If saving is enabled, it creates save files for each agent. It then creates environments and runs agents in parallel for the specified number of times. If verbose is true, it prints progress information.",
+        "type": "comment"
+    },
+    "96": {
+        "file_id": 10,
+        "content": "            agt_name = agent_name_pool[_agt]\n            agt = agent_pool[_agt]\n            n_prm = len(param_pool[_agt])\n            for _prm in range(n_prm):\n                prm = param_pool[_agt][_prm]\n                agt.reset(prm)\n                if verbose:\n                    print('Created agent', _agt+1, '/', n_agt,'with parameters', _prm+1, '/', n_prm)\n                    agt.display()\n                results_pool = []\n                for _thr in range(n_thread):\n                    results_pool.append(pool.apply_async(multithread_run,[env_name, _env, n_env, env, agt_name, _agt, n_agt, agt, _prm, n_prm, prm, tmax, n_epi, _thr+1, save, paths_pool[_agt], verbose, save_period]))\n                for result in results_pool:\n                    result.get()\n#def multinode_benchmark():\n    #TODO\ndef test_multithread():\n    env_name = 'NSFrozenLakeEnv-v0'\n    n_env = 4\n    n_epi = 32\n    tmax = 100\n    n_thread = 4\n    env = gym.make(env_name)\n    agent_name_pool = ['UCT', 'RANDOM']\n    agent_pool = [uct.UCT(env.action_space), ra.MyRandomAgent(env.action_space)]",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:141-168"
+    },
+    "97": {
+        "file_id": 10,
+        "content": "This code initializes multiple agents with varying parameters, creates threads to run each agent in a given environment, and collects results. The agents are reset with different parameter settings before running multithreaded tests on the provided environment. Results from each thread are collected and returned.",
+        "type": "comment"
+    },
+    "98": {
+        "file_id": 10,
+        "content": "    param_names_pool = [\n        ['action_space','rollouts','horizon','gamma','ucb_constant','is_model_dynamic'],\n        ['action_space']\n    ]\n    param_pool = [\n        [[env.action_space,  1, 1, 0.9, 6.36396103068, True],[env.action_space, 10, 10, 0.9, 6.36396103068, True]],\n        [[env.action_space]]\n    ]\n    paths_pool = ['data/test_uct.csv','data/test_random.csv']\n    multithread_benchmark(\n        env_name         = env_name,\n        n_env            = n_env,\n        agent_name_pool  = agent_name_pool,\n        agent_pool       = agent_pool,\n        param_pool       = param_pool,\n        param_names_pool = param_names_pool,\n        n_epi            = n_epi,\n        tmax             = tmax,\n        save             = True,\n        paths_pool       = paths_pool,\n        n_thread         = n_thread,\n        verbose          = True,\n        save_period      = 1\n    )\ndef test_singlethread():\n    env_name = 'NSFrozenLakeEnv-v0'\n    n_env = 2\n    n_epi = 8\n    tmax = 100\n    env = gym.make(env_name)\n    agent_name_pool = ['UCT','RANDOM']",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:169-202"
+    },
+    "99": {
+        "file_id": 10,
+        "content": "The code defines a function `test_singlethread` that tests the benchmarking of single-threaded UCT and random agents on the NSFrozenLakeEnv environment. It sets up the environment, agent names, number of episodes, and maximum time steps per episode. The multithread_benchmark function is then called with various parameters to compare performance.",
+        "type": "comment"
+    }
+}

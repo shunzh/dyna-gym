@@ -1,0 +1,10 @@
+{
+    "summary": "This code initializes a UCT agent in the NSCartPole-v1 environment using Dyna-Gym library, and runs a simulation for 100 timesteps. The UCT agent makes decisions by considering game state, rollouts, horizon, and dynamic model. It prints state and renders each step until reaching the end of the episode or when done condition is met.",
+    "details": [
+        {
+            "comment": "This code initializes a UCT agent in the NSCartPole-v1 environment using Dyna-Gym library, and runs a simulation for 100 timesteps. The UCT agent makes decisions by considering game state, rollouts, horizon, and dynamic model. It prints state and renders each step until reaching the end of the episode or when done condition is met.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/examples/uct_nscartpole_v1.py\":0-26",
+            "content": "import gym\nimport dyna_gym.agents.uct as uct\n### Parameters\nenv = gym.make('NSCartPole-v1')\nagent = uct.UCT(\n    action_space=env.action_space,\n    rollouts=500,\n    horizon=200,\n    is_model_dynamic=True\n)\ntimesteps = 100\nverbose = False\n### Run\nenv.reset()\ndone = False\nfor ts in range(timesteps):\n    __, reward, done, __ = env.step(agent.act(env,done))\n    if verbose:\n        env.print_state()\n    env.render()\n    if ts+1 == timesteps:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break"
+        }
+    ]
+}

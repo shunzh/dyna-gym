@@ -1,0 +1,15 @@
+{
+    "summary": "The code imports libraries, defines a sentiment analysis function, sets parameters, initializes a language generation model, and uses MCTS for language alignment. It generates texts based on a given question with corresponding rewards for further processing.",
+    "details": [
+        {
+            "comment": "This code imports necessary libraries, defines a sentiment analysis function based on generated text, sets the maximum number of steps and UCT agent arguments, and initializes a Hugging Face model for language generation.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/examples/uct_language_alignment.py\":0-40",
+            "content": "import transformers\nfrom transformers import pipeline\nfrom dyna_gym.pipelines import uct_for_hf_transformer_pipeline\n# define a reward function based on sentiment of the generated text\nsentiment_pipeline = pipeline(\"sentiment-analysis\")\ndef sentiment_analysis(sentence):\n    output = sentiment_pipeline(sentence)[0]\n    if output['label'] == 'POSITIVE':\n        return output['score']\n    else:\n        return -output['score']\n# maximum number of steps / tokens to generate in each episode\nhorizon = 50\n# arguments for the UCT agent\nuct_args = dict(\n    rollouts = 20,\n    gamma = 1.,\n    width = 3,\n    alg = 'uct', # or p_uct\n)\n# will be passed to huggingface model.generate()\nmodel_generation_args = dict(\n    top_k = 3,\n    top_p = 0.9,\n    do_sample = True,\n    temperature = 0.7,\n)\nmodel_name = \"gpt2\"\nmodel = transformers.AutoModelForCausalLM.from_pretrained(model_name)\ntokenizer = transformers.AutoTokenizer.from_pretrained(model_name)\npipeline = uct_for_hf_transformer_pipeline(\n    model = model,\n    tokenizer = tokenizer,"
+        },
+        {
+            "comment": "The code defines a function using MCTS (Monte Carlo Tree Search) algorithm for language alignment. It sets the horizon, reward function (sentiment analysis), UCT parameters and plots the tree after generation. Then, it uses a pipeline to input a text question and outputs the generated texts and their corresponding rewards for further processing.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/examples/uct_language_alignment.py\":41-55",
+            "content": "    horizon = horizon,\n    reward_func = sentiment_analysis,\n    uct_args = uct_args,\n    model_generation_args = model_generation_args,\n    should_plot_tree = True, # plot the tree after generation\n)\ninput_str = \"What do you think of this movie?\"\noutputs = pipeline(input_str=input_str)\nfor text, reward in zip(outputs['texts'], outputs['rewards']):\n    print(\"==== Text ====\")\n    print(text)\n    print(\"==== Reward:\", reward, \"====\")\n    print()"
+        }
+    ]
+}

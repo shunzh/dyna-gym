@@ -1,0 +1,10 @@
+{
+    "summary": "The code initializes a random agent and an environment, then runs the agent's actions for a specified number of timesteps. It prints the state of the environment after each action and renders the state in case verbose is True. The loop breaks if the episode ends or reaches the specified number of timesteps. Note: using a random agent will likely fail easily due to lack of intelligent decision-making.",
+    "details": [
+        {
+            "comment": "The code initializes a random agent and an environment, then runs the agent's actions for a specified number of timesteps. It prints the state of the environment after each action and renders the state in case verbose is True. The loop breaks if the episode ends or reaches the specified number of timesteps. Note: using a random agent will likely fail easily due to lack of intelligent decision-making.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/examples/random_nscartpole_v0.py\":0-22",
+            "content": "import gym\nimport dyna_gym.agents.my_random_agent as my_random_agent\n### Parameters\nenv = gym.make('NSCartPole-v0')\n# Note: Using a random agent will fail very easily!\nagent = my_random_agent.MyRandomAgent(action_space=env.action_space)\ntimesteps = 100\nverbose = False\n### Run\nenv.reset()\ndone = False\nfor ts in range(timesteps):\n    __, __, done, __ = env.step(agent.act(env,done))\n    if verbose:\n        env.print_state()\n    env.render()\n    if ts+1 == timesteps:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break"
+        }
+    ]
+}

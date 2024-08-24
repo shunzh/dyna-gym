@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="github-markdown.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <title>Project structure of: shunzh/mcts-for-llm</title>
+    <style>
+        .directory:hover {
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        :target {
+            background-color: yellow !important;
+        }
+
+        .folded::before {
+            content: '\25B6';
+            margin-right: 8px;
+            /* Add space between marker and text */
+        }
+
+        .expanded::before {
+            content: '\25BC';
+            margin-right: 8px;
+            /* Add space between marker and text */
+        }
+    </style>
+    <script>
+        function toggleVisibility(element) {
+            let mclass = element.getAttribute("class");
+            if (mclass == "expanded") {
+                element.setAttribute('class', 'folded');
+            } else {
+                element.setAttribute('class', 'expanded');
+            }
+            const siblings = element.parentNode.children;
+            for (const sibling of siblings) {
+                if (sibling !== element) {
+                    sibling.style.display = (sibling.style.display === 'none') ? 'block' : 'none';
+                }
+            }
+        }
+    </script>
+    <style>
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+
+            .partial-repository-url {
+                display: none;
+            }
+        }
+
+        ul {
+            list-style: none;
+        }
+        #feeling-lucky:hover{
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <article class="markdown-body">
+        <h2>Project structure<span hierarchy="0" class="partial-repository-url"> of: shunzh/mcts-for-llm</span><div style="float: right;"><a title="Document index" style="margin:3.5px;" href="index.html"><i class="bi bi-search"></i></a><a title="Feeling lucky" style="margin:3.5px;" id="feeling-lucky" href="#"><i class="bi bi-dice-3"></i></a><a title="Expand tree" style="margin:3.5px;" href="tree.html?full=true" id="expand-tree"><i class="bi bi-caret-down-square"></i></a></div></h2>
+<ul>
+<li><span hierarchy="0" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/"><code>mcts-for-llm</code></strong> <em>AI Gym for Agents Training &amp; Evaluation</em></span><ul>
+<li><span hierarchy="1" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/dyna_gym/"><code>dyna&UnderBar;gym</code></strong> <em>Dynamic Gym: AI gym for agents' training and evaluation</em></span><ul>
+<li><a class="file_link" href="index.html?q=/dyna_gym/__init__.py" id="/dyna_gym/__init__.py"><code>&UnderBar;&UnderBar;init&UnderBar;&UnderBar;&period;py</code></a> <em>DynaGym registers variants, introduces "LanguageEnv-v0" environment.</em></li>
+<li><span hierarchy="2" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/dyna_gym/agents/"><code>agents</code></strong> <em>Dyna-Gym agents: UCT, RL, random</em></span><ul>
+<li><a class="file_link" href="index.html?q=/dyna_gym/agents/mcts.py" id="/dyna_gym/agents/mcts.py"><code>mcts&period;py</code></a> <em>MCTS algorithm implementation for RL agent in dyna-gym environment.</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/agents/my_random_agent.py" id="/dyna_gym/agents/my_random_agent.py"><code>my&UnderBar;random&UnderBar;agent&period;py</code></a> <em>Random Agent class for action space selection</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/agents/uct.py" id="/dyna_gym/agents/uct.py"><code>uct&period;py</code></a> <em>UCT agent for Dyna-Gym with MCTS and UCB</em></li>
+</ul>
+</li>
+<li><span hierarchy="2" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/dyna_gym/default_policy/"><code>default&UnderBar;policy</code></strong> <em>Transformer-based Gym default policies for sequences and top-k tokens.</em></span><ul>
+<li><a class="file_link" href="index.html?q=/dyna_gym/default_policy/default_policy.py" id="/dyna_gym/default_policy/default_policy.py"><code>default&UnderBar;policy&period;py</code></a> <em>DefaultPolicy: Abstract class with abstract methods for sequence and top-k tokens.</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/default_policy/hf_default_policy.py" id="/dyna_gym/default_policy/hf_default_policy.py"><code>hf&UnderBar;default&UnderBar;policy&period;py</code></a> <em>Transformer-based Gym Decision Maker with Top k Tokens</em></li>
+</ul>
+</li>
+<li><span hierarchy="2" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/dyna_gym/envs/"><code>envs</code></strong></span><ul>
+<li><a class="file_link" href="index.html?q=/dyna_gym/envs/language_env.py" id="/dyna_gym/envs/language_env.py"><code>language&UnderBar;env&period;py</code></a> <em>Gym language environment using MCTS</em></li>
+</ul>
+</li>
+<li><span hierarchy="2" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/dyna_gym/pipelines/"><code>pipelines</code></strong> <em>UCT agent pipeline for HF Transformers in Dyna-Gym.</em></span><ul>
+<li><a class="file_link" href="index.html?q=/dyna_gym/pipelines/__init__.py" id="/dyna_gym/pipelines/__init__.py"><code>&UnderBar;&UnderBar;init&UnderBar;&UnderBar;&period;py</code></a> <em>Imports uct pipeline for HF Transformers in Dyna-Gym.</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/pipelines/uct_for_hf_transformer.py" id="/dyna_gym/pipelines/uct_for_hf_transformer.py"><code>uct&UnderBar;for&UnderBar;hf&UnderBar;transformer&period;py</code></a> <em>UCT agent for HuggingFace transformers, generate function.</em></li>
+</ul>
+</li>
+<li><span hierarchy="2" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/dyna_gym/utils/"><code>utils</code></strong> <em>Evaluating and comparing multithreaded agent performances.</em></span><ul>
+<li><a class="file_link" href="index.html?q=/dyna_gym/utils/benchmark.py" id="/dyna_gym/utils/benchmark.py"><code>benchmark&period;py</code></a> <em>Multithreaded benchmark function for comparing agent performances.</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/utils/distribution.py" id="/dyna_gym/utils/distribution.py"><code>distribution&period;py</code></a> <em>Calculates 1-Wasserstein distances, generates distributions via linear programs.</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/utils/tree_search_utils.py" id="/dyna_gym/utils/tree_search_utils.py"><code>tree&UnderBar;search&UnderBar;utils&period;py</code></a> <em>Decision tree utilities for networkx</em></li>
+<li><a class="file_link" href="index.html?q=/dyna_gym/utils/utils.py" id="/dyna_gym/utils/utils.py"><code>utils&period;py</code></a> <em>Dyna Gym utilities for data handling, comparison, and verification.</em></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span hierarchy="1" class="expanded" onclick="toggleVisibility(this)" ><strong class="directory" id="/examples/"><code>examples</code></strong> <em>UCT-based AI apps learn from NSCartPole-v episodes.</em></span><ul>
+<li><a class="file_link" href="index.html?q=/examples/mcts_nscartpole_v0.py" id="/examples/mcts_nscartpole_v0.py"><code>mcts&UnderBar;nscartpole&UnderBar;v0&period;py</code></a> <em>Monte Carlo agent plays NSCartPole, 100 timesteps, optional verbose output.</em></li>
+<li><a class="file_link" href="index.html?q=/examples/random_nscartpole_v0.py" id="/examples/random_nscartpole_v0.py"><code>random&UnderBar;nscartpole&UnderBar;v0&period;py</code></a> <em>Random agent interacts with environment in random_nscartpole_v0.py</em></li>
+<li><a class="file_link" href="index.html?q=/examples/uct_language_alignment.py" id="/examples/uct_language_alignment.py"><code>uct&UnderBar;language&UnderBar;alignment&period;py</code></a> <em>Language alignment model with MCTS for text generation.</em></li>
+<li><a class="file_link" href="index.html?q=/examples/uct_nscartpole_v0.py" id="/examples/uct_nscartpole_v0.py"><code>uct&UnderBar;nscartpole&UnderBar;v0&period;py</code></a> <em>UCT agent plays NSCartPole-v0 environment, 100 timesteps.</em></li>
+<li><a class="file_link" href="index.html?q=/examples/uct_nscartpole_v1.py" id="/examples/uct_nscartpole_v1.py"><code>uct&UnderBar;nscartpole&UnderBar;v1&period;py</code></a> <em>UCT agent runs 100 timesteps in NSCartPole-v1 environment.</em></li>
+<li><a class="file_link" href="index.html?q=/examples/uct_nscartpole_v2.py" id="/examples/uct_nscartpole_v2.py"><code>uct&UnderBar;nscartpole&UnderBar;v2&period;py</code></a> <em>UCT agent controls NSCartPole-v2 environment in Dyna-Gym, learning through episodes.</em></li>
+</ul>
+</li>
+<li><a class="file_link" href="index.html?q=/README.md" id="/README.md"><code>README&period;md</code></a> <em>Monte-Carlo search, large language models, sentiment analysis examples.</em></li>
+<li><a class="file_link" href="index.html?q=/setup.py" id="/setup.py"><code>setup&period;py</code></a> <em>Install scripts for dyna_gym, dependencies included</em></li>
+</ul>
+</li>
+</ul>
+    </article>
+    <script type="text/javascript">
+        function getQueryParams() {
+            var search = window.location.search.substring(1); // Remove leading '?'
+            var queryParams = {};
+            search.split('&').forEach(function (pair) {
+                var parts = pair.split('=');
+                var key = decodeURIComponent(parts[0]);
+                var value = decodeURIComponent(parts[1]);
+                queryParams[key] = value;
+            });
+            return queryParams;
+        }
+
+        const queryParams = getQueryParams(window.location.search);
+        const show_full = queryParams.full == "true";
+        //const is_random = queryParams.random == 'true';
+        function feelingLucky() {
+            var elements = document.getElementsByClassName("file_link");
+            var randomIndex = Math.floor(Math.random() * elements.length);
+            window.location = elements[randomIndex].href;
+        }
+        //if (is_random) {feelingLucky();}
+        document.getElementById("feeling-lucky").onclick = feelingLucky;
+        if (!show_full) {
+            const spans = document.querySelectorAll('span');
+            for (let span of spans) {
+                if (span.getAttribute("hierarchy") == '0') { continue }
+                toggleVisibility(span);
+            }
+        } else {
+            const expand_elem = document.getElementById('expand-tree');
+            expand_elem.setAttribute("href", "tree.html");
+            expand_elem.setAttribute("title", "Undo expand");
+            expand_elem.innerHTML = '<i class="bi bi-caret-up-square"></i>'
+        }
+
+    </script>
+</body>
+
+</html>

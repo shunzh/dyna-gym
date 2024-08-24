@@ -1,0 +1,115 @@
+{
+    "url": {
+        "full": "https://github.com/shunzh/mcts-for-llm",
+        "partial": "shunzh/mcts-for-llm"
+    },
+    "file_mapping": {
+        "0": {
+            "filepath": "/README.md",
+            "entry_id": 0,
+            "language_id": "plain-text"
+        },
+        "1": {
+            "filepath": "/dyna_gym/__init__.py",
+            "entry_id": 6,
+            "language_id": "python"
+        },
+        "2": {
+            "filepath": "/dyna_gym/agents/mcts.py",
+            "entry_id": 12,
+            "language_id": "python"
+        },
+        "3": {
+            "filepath": "/dyna_gym/agents/my_random_agent.py",
+            "entry_id": 32,
+            "language_id": "python"
+        },
+        "4": {
+            "filepath": "/dyna_gym/agents/uct.py",
+            "entry_id": 36,
+            "language_id": "python"
+        },
+        "5": {
+            "filepath": "/dyna_gym/default_policy/default_policy.py",
+            "entry_id": 48,
+            "language_id": "python"
+        },
+        "6": {
+            "filepath": "/dyna_gym/default_policy/hf_default_policy.py",
+            "entry_id": 52,
+            "language_id": "python"
+        },
+        "7": {
+            "filepath": "/dyna_gym/envs/language_env.py",
+            "entry_id": 60,
+            "language_id": "python"
+        },
+        "8": {
+            "filepath": "/dyna_gym/pipelines/__init__.py",
+            "entry_id": 68,
+            "language_id": "python"
+        },
+        "9": {
+            "filepath": "/dyna_gym/pipelines/uct_for_hf_transformer.py",
+            "entry_id": 72,
+            "language_id": "python"
+        },
+        "10": {
+            "filepath": "/dyna_gym/utils/benchmark.py",
+            "entry_id": 82,
+            "language_id": "python"
+        },
+        "11": {
+            "filepath": "/dyna_gym/utils/distribution.py",
+            "entry_id": 102,
+            "language_id": "python"
+        },
+        "12": {
+            "filepath": "/dyna_gym/utils/tree_search_utils.py",
+            "entry_id": 112,
+            "language_id": "python"
+        },
+        "13": {
+            "filepath": "/dyna_gym/utils/utils.py",
+            "entry_id": 132,
+            "language_id": "python"
+        },
+        "14": {
+            "filepath": "/examples/mcts_nscartpole_v0.py",
+            "entry_id": 138,
+            "language_id": "python"
+        },
+        "15": {
+            "filepath": "/examples/random_nscartpole_v0.py",
+            "entry_id": 142,
+            "language_id": "python"
+        },
+        "16": {
+            "filepath": "/examples/uct_language_alignment.py",
+            "entry_id": 146,
+            "language_id": "python"
+        },
+        "17": {
+            "filepath": "/examples/uct_nscartpole_v0.py",
+            "entry_id": 152,
+            "language_id": "python"
+        },
+        "18": {
+            "filepath": "/examples/uct_nscartpole_v1.py",
+            "entry_id": 156,
+            "language_id": "python"
+        },
+        "19": {
+            "filepath": "/examples/uct_nscartpole_v2.py",
+            "entry_id": 160,
+            "language_id": "python"
+        },
+        "20": {
+            "filepath": "/setup.py",
+            "entry_id": 164,
+            "language_id": "python"
+        }
+    },
+    "project_name": "mcts-for-llm",
+    "split_count": 2
+}

@@ -1,0 +1,10 @@
+{
+    "summary": "This code defines a Random Agent class, which takes an action space as input and returns a random action from the given space. The class includes methods for resetting attributes and displaying agent information.",
+    "details": [
+        {
+            "comment": "This code defines a Random Agent class, which takes an action space as input and returns a random action from the given space. The class includes methods for resetting attributes and displaying agent information.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/agents/my_random_agent.py\":0-29",
+            "content": "\"\"\"\nA Random Agent given as an example\n\"\"\"\nfrom gym import spaces\nimport dyna_gym.utils.utils as utils\nclass MyRandomAgent(object):\n    def __init__(self, action_space):\n        self.action_space = action_space\n    def reset(self, p=None):\n        \"\"\"\n        Reset the attributes.\n        Expect to receive them in the same order as init.\n        p : list of parameters\n        \"\"\"\n        if p is not None:\n            utils.assert_types(p,[spaces.discrete.Discrete])\n            self.__init__(p[0])\n    def display(self):\n        \"\"\"\n        Display infos about the attributes.\n        \"\"\"\n        print('Displaying Random agent:')\n        print('Action space       :', self.action_space)\n    def act(self, observation=None, reward=None, done=None):\n        return self.action_space.sample()"
+        }
+    ]
+}

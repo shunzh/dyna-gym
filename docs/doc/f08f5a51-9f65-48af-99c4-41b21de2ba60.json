@@ -1,0 +1,15 @@
+{
+    "summary": "Code contains utility functions for data handling, comparison and verification, with specific functions such as amax, combinations, and multigpu_breakpoint.",
+    "details": [
+        {
+            "comment": "This code contains a set of utility functions for handling and checking various types of data. It includes functions to compare numbers, vectors, and check if coefficients are equal or close. There are also assertion functions to verify that the types of input parameters match expected types.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/utils/utils.py\":0-29",
+            "content": "import numpy as np\nfrom math import isclose\nimport itertools\nimport torch\nfrom gym import spaces\ndef close(a, b, r=13):\n    return isclose(round(a,r), round(b,r), rel_tol=1e-12, abs_tol=0.0)\ndef closevec(u, v, r=13):\n    assert len(u) == len(v), 'Error: vectors have different lengths: len(u)={} len(v)={}'.format(len(u), len(v))\n    for i in range(len(u)):\n        if not close(u[i], v[i], r):\n            return False\n    return True\ndef are_coeff_equal(v):\n    return bool(np.prod(list(v[i] == v[i+1] for i in range(len(v)-1)), axis=0))\ndef are_coeff_close(v):\n    return bool(np.prod(list(close(v[i],v[i+1]) for i in range(len(v)-1)), axis=0))\ndef assert_types(p, types_list):\n    \"\"\"\n    Assert that the types of the elements of p match those of the types_list\n    \"\"\"\n    assert len(p) == len(types_list), 'Error: expected {} parameters received {}'.format(len(types_list), len(p))\n    for i in range(len(p)):\n        assert type(p[i]) == types_list[i], 'Error: wrong type, expected {}, received {}'.format(types_list[i], type(p[i]))"
+        },
+        {
+            "comment": "The \"amax\" function takes an array of values and returns the higher value and its index. The \"combinations\" function generates all possible combinations of values for a given space, handling discrete spaces and tuples differently. The \"multigpu_breakpoint\" function checks if the distributed process is initialized and performs a breakpoint only on the main rank (0), while other ranks synchronize with a barrier.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/utils/utils.py\":31-55",
+            "content": "def amax(v):\n    \"\"\"\n    Return the higher value and its index given an array of values.\n    \"\"\"\n    vmax, index = v[0], 0\n    for i in range(1, len(v)):\n        if v[i] > vmax:\n            vmax = v[i]\n            index = i\n    return vmax, index\ndef combinations(space):\n    if isinstance(space, spaces.Discrete):\n        return range(space.n)\n    elif isinstance(space, spaces.Tuple):\n        return itertools.product(*[combinations(s) for s in space.spaces])\n    else:\n        raise NotImplementedError\ndef multigpu_breakpoint():\n    if torch.distributed.is_initialized():\n        if torch.distributed.get_rank() == 0:\n            breakpoint()\n        else:\n            torch.distributed.barrier()"
+        }
+    ]
+}

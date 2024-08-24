@@ -1,0 +1,10 @@
+{
+    "summary": "This code defines an abstract class, DefaultPolicy, with two abstract methods: get_predicted_sequence and get_top_k_tokens. It takes environment and horizon as parameters in its constructor.",
+    "details": [
+        {
+            "comment": "This code defines an abstract class, DefaultPolicy, with two abstract methods: get_predicted_sequence and get_top_k_tokens. It takes environment and horizon as parameters in its constructor.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/default_policy/default_policy.py\":0-22",
+            "content": "from abc import abstractmethod\nimport gym\nclass DefaultPolicy:\n    def __init__(self, env: gym.Env, horizon: int):\n        \"\"\"\n        Args:\n            k: number of top k predictions to return\n            env: environment\n            horizon: horizon of the environment (the maximum number of steps in an episode)\n        \"\"\"\n        self.env = env\n        self.horizon = horizon\n    @abstractmethod\n    def get_predicted_sequence(self, state, horizon: int = None):\n        pass\n    @abstractmethod\n    def get_top_k_tokens(self, state):\n        pass"
+        }
+    ]
+}

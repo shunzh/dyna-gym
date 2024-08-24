@@ -1,0 +1,366 @@
+{
+    "100": {
+        "file_id": 10,
+        "content": "    agent_pool = [uct.UCT(env.action_space), ra.MyRandomAgent(env.action_space)]\n    param_names_pool = [\n        ['action_space','rollouts','horizon','gamma','ucb_constant','is_model_dynamic'],\n        ['action_space']\n    ]\n    param_pool = [\n        [[env.action_space,  10, 100, 0.9, 6.36396103068, True],[env.action_space, 100, 100, 0.9, 6.36396103068, True]],\n        [[env.action_space]]\n    ]\n    paths_pool = ['data/test_uct.csv','data/test_random.csv']\n    singlethread_benchmark(\n        env_name         = env_name,\n        n_env            = n_env,\n        agent_name_pool  = agent_name_pool,\n        agent_pool       = agent_pool,\n        param_pool       = param_pool,\n        param_names_pool = param_names_pool,\n        n_epi            = n_epi,\n        tmax             = tmax,\n        save             = True,\n        paths_pool       = paths_pool,\n        verbose          = True\n    )",
+        "type": "code",
+        "location": "/dyna_gym/utils/benchmark.py:203-226"
+    },
+    "101": {
+        "file_id": 10,
+        "content": "This code creates a pool of agents and their parameters, then calls `singlethread_benchmark` function to compare agent performances. It uses two agents: UCT (UCT.py) and MyRandomAgent (ra/MyRandomAgent.py), defined on the environment's action space. The parameters for each agent are stored in param_pool, along with their names in param_names_pool. The function saves results into specified paths in paths_pool and executes the comparison with verbose output if True.",
+        "type": "comment"
+    },
+    "102": {
+        "file_id": 11,
+        "content": "/dyna_gym/utils/distribution.py",
+        "type": "filepath"
+    },
+    "103": {
+        "file_id": 11,
+        "content": "This code calculates 1-Wasserstein distances between vectors and generates distributions using linear programs. It includes functions for cleaning and generating worst-case distributions, along with a function that iteratively finds and cleans distributions.",
+        "type": "summary"
+    },
+    "104": {
+        "file_id": 11,
+        "content": "\"\"\"\nHelpful functions when dealing with distributions\n\"\"\"\nimport numpy as np\nimport dyna_gym.utils.utils as utils\nfrom itertools import combinations\nfrom scipy.optimize import linprog\nfrom math import sqrt\ndef marginal_matrices(n):\n    A = np.zeros(shape=(n, n**2))\n    B = np.zeros(shape=(n, n**2))\n    for i in range(n):\n        A[i][i*n:(i+1)*n] = 1\n        for j in range(n):\n            B[i][j*n+i] = 1\n    return A, B\ndef wass_primal(u, v, d):\n    \"\"\"\n    Compute the 1-Wasserstein distance between u (shape=n) and v (shape=n) given the distances matrix d (shape=(n,n)).\n    Use the primal formulation.\n    \"\"\"\n    n = d.shape[0]\n    obj = np.reshape(d, newshape=(n*n))\n    A, B = marginal_matrices(n)\n    Ae = np.concatenate((A, B), axis=0)\n    be = np.concatenate((u, v))\n    res = linprog(obj, A_eq=Ae, b_eq=be)\n    return res.fun\ndef wass_dual(u, v, d):\n    \"\"\"\n    Compute the 1-Wasserstein distance between u (shape=n) and v (shape=n) given the distances matrix d (shape=(n,n)).\n    Use the dual formulation.\n    \"\"\"\n    n = d.shape[0]",
+        "type": "code",
+        "location": "/dyna_gym/utils/distribution.py:1-38"
+    },
+    "105": {
+        "file_id": 11,
+        "content": "This code file contains three functions related to distributions. The `marginal_matrices` function returns two matrices, A and B, used in the computation of Wasserstein distances. The `wass_primal` function computes the 1-Wasserstein distance between two vectors u and v using the primal formulation, utilizing the marginal matrices. Similarly, the `wass_dual` function computes the same distance using the dual formulation. All functions take a distances matrix d as input, which contains pairwise distances between elements of vectors u and v.",
+        "type": "comment"
+    },
+    "106": {
+        "file_id": 11,
+        "content": "    comb = np.array(list(combinations(range(n), 2)))\n    obj = u - v\n    Au = np.zeros(shape=(n*(n-1),n))\n    bu = np.zeros(shape=(n*(n-1)))\n    for i in range(len(comb)):\n        Au[2*i][comb[i][0]] = +1.0\n        Au[2*i][comb[i][1]] = -1.0\n        Au[2*i+1][comb[i][0]] = -1.0\n        Au[2*i+1][comb[i][1]] = +1.0\n        bu[2*i] = d[comb[i][0]][comb[i][1]]\n        bu[2*i+1] = d[comb[i][0]][comb[i][1]]\n    res = linprog(obj, A_ub=Au, b_ub=bu)\n    return -res.fun\ndef random_tabular(size):\n    \"\"\"\n    Generate a 1D numpy array whose coefficients sum to 1\n    \"\"\"\n    w = np.random.random(size)\n    return w / np.sum(w)\ndef random_constrained(u, d, maxdist):\n    \"\"\"\n    Randomly generate a new distribution st the Wasserstein distance between the input\n    distribution u and the generated distribution is smaller than the input maxdist.\n    The distance is computed w.r.t. the distances matrix d.\n    Notice that the generated distribution has the same support as the input distribution.\n    \"\"\"\n    max_n_trial = int(1e4) # Maximum number of trials",
+        "type": "code",
+        "location": "/dyna_gym/utils/distribution.py:39-67"
+    },
+    "107": {
+        "file_id": 11,
+        "content": "The code contains three functions: `distribution`, `random_tabular`, and `random_constrained`. The `distribution` function generates a linear program to find the optimal distribution, while `random_tabular` generates a 1D numpy array whose coefficients sum to 1. Lastly, `random_constrained` randomly generates a new distribution with a specified Wasserstein distance threshold from the input distribution and uses a given distances matrix for comparison.",
+        "type": "comment"
+    },
+    "108": {
+        "file_id": 11,
+        "content": "    val = np.asarray(range(len(u)))\n    v = random_tabular(val.size)\n    for i in range(max_n_trial):\n        if wass_dual(u, v, d) <= maxdist:\n            return v\n        else:\n            v = random_tabular(val.size)\n    print('Failed to generate constrained distribution after {} trials'.format(max_n_trial))\n    exit()\ndef clean_distribution(w):\n    for i in range(len(w)):\n        if utils.close(w[i], 0.0):\n            w[i] = 0.0\n        else:\n            assert w[i] > 0.0, 'Error: negative weight computed ({}th index): w={}'.format(i, w)\n    return w\ndef worstcase_distribution_dichotomy_method(v, w0, c, d):\n    time_start = time.time()\n    n = len(v)\n    if n > 28:\n        print('WARNING: solver instabilities above this number of dimensions (n={})'.format(n))\n    if utils.close(c, 0.0) or utils.closevec(v, v[0] * np.ones(n)):\n        return w0\n    w_worst = np.zeros(n)\n    w_worst[np.argmin(v)] = 1.0\n    if (wass_dual(w_worst, w0, d) <= c):\n        return w_worst\n    else:\n        wmax = w_worst\n        wmin = w0",
+        "type": "code",
+        "location": "/dyna_gym/utils/distribution.py:68-99"
+    },
+    "109": {
+        "file_id": 11,
+        "content": "The code defines three functions: `clean_distribution`, `worstcase_distribution_dichotomy_method`. The `clean_distribution` function sets any weights close to zero to 0.0 and checks for negative weights. The `worstcase_distribution_dichotomy_method` function creates a worst-case distribution, returns it if the worst-case was found, or iteratively generates new distributions until it reaches the maximum number of trials. It also has checks for instabilities above a certain dimension and for zero or identical vectors. The code uses numpy arrays and other functions from the `utils` module.",
+        "type": "comment"
+    },
+    "110": {
+        "file_id": 11,
+        "content": "        w = 0.5 * (wmin + wmax)\n        for i in range(1000): # max iter is 1000\n            if (wass_dual(w, w0, d) <= c):\n                wmin = w\n                wnew = 0.5 * (wmin + wmax)\n            else:\n                wmax = w\n                wnew = 0.5 * (wmin + wmax)\n            if utils.closevec(wnew, w, 6): # precision is 1e-6\n                w = wnew\n                break\n            else:\n                w = wnew\n    return clean_distribution(w)\ndef worstcase_distribution_direct_method(v, w0, c, d):\n    n = len(v)\n    if utils.close(c, 0.0) or utils.closevec(v, v[0] * np.ones(n)):\n        return w0\n    w_worst = np.zeros(n)\n    w_worst[np.argmin(v)] = 1.0\n    if (wass_dual(w_worst, w0, d) <= c):\n        return w_worst\n    lbd = c / wass_dual(w0, w_worst, d)\n    w = w_an = (1.0 - lbd) * w0 + lbd * w_worst\n    return clean_distribution(w)",
+        "type": "code",
+        "location": "/dyna_gym/utils/distribution.py:100-125"
+    },
+    "111": {
+        "file_id": 11,
+        "content": "The provided code contains two functions: \"worstcase_distribution_direct_method\" and an anonymous function. The anonymous function initializes variables and performs iterative calculations to find a distribution that meets certain criteria. It checks if the given cost 'c' is close to 0 or if the vector 'v' is a scaled version of itself. If so, it returns the initial distribution 'w0'. Otherwise, it computes the worst-case distribution 'w_worst', calculates the Lagrange multiplier 'lbd', and iteratively updates the distribution 'w' based on 'w0' and 'w_worst' until convergence. Finally, it returns the cleaned distribution using \"clean_distribution\" function.",
+        "type": "comment"
+    },
+    "112": {
+        "file_id": 12,
+        "content": "/dyna_gym/utils/tree_search_utils.py",
+        "type": "filepath"
+    },
+    "113": {
+        "file_id": 12,
+        "content": "This code provides functions for traversing, extracting decision nodes, and visualizing a decision tree using networkx. It uses pre-order traversal, defines a layout for hierarchical trees, checks if the graph is a tree, and adjusts node positions for proper visualization.",
+        "type": "summary"
+    },
+    "114": {
+        "file_id": 12,
+        "content": "import random\nimport networkx as nx\nimport numpy as np\nfrom matplotlib import pyplot as plt\nfrom dyna_gym.agents.mcts import DecisionNode, ChanceNode, chance_node_value\ndef update_root(ag, act, state_p):\n    root_updated = False\n    for chance_node in ag.root.children:\n        if act == chance_node.action:\n            for decision_node in chance_node.children:\n                if decision_node.state == state_p:\n                    ag.root = decision_node\n                    root_updated = True\n                    break\n    if not root_updated:\n        raise Exception(\"root update fails, can't find the next state, action pair in tree.\")\ndef pre_order_traverse(\n        decision_node: DecisionNode,\n        decision_node_fn=lambda n, d: None,\n        chance_node_fn=lambda n, d: None,\n        depth=0):\n    \"\"\"\n    Postorder traversal of the tree rooted at state\n    Apply fn once visited\n    \"\"\"\n    decision_node_fn(decision_node, depth)\n    for chance_node in decision_node.children:\n        chance_node_fn(chance_node, depth)",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:1-36"
+    },
+    "115": {
+        "file_id": 12,
+        "content": "The code defines functions \"update_root\" and \"pre_order_traverse\". The \"update_root\" function updates the root of a tree-based agent, searching for a state-action pair in the tree. The \"pre_order_traverse\" function performs a pre-order traversal of a game tree, applying different functions to decision nodes and chance nodes depending on their type.",
+        "type": "comment"
+    },
+    "116": {
+        "file_id": 12,
+        "content": "        for next_decision_node in chance_node.children:\n            pre_order_traverse(next_decision_node, decision_node_fn, chance_node_fn, depth + 1)\ndef get_all_decision_nodes(root: DecisionNode):\n    \"\"\"\n    Get all decision nodes in the tree\n    \"\"\"\n    decision_nodes = []\n    pre_order_traverse(root, decision_node_fn=lambda n, d: decision_nodes.append(n))\n    return decision_nodes\ndef print_tree(root: DecisionNode, tokenizer):\n    def printer(node: ChanceNode, depth):\n        # print the average return of the *parent* of this state\n        # (this is easier to implement than printing all its children nodes)\n        print(\"\\t\" * depth,\n              repr(tokenizer.decode(node.action)),\n              'prob', node.prob,\n              'returns', node.sampled_returns)\n    pre_order_traverse(root, chance_node_fn=printer)\ndef plot_tree(root: DecisionNode, tokenizer, filename):\n    \"\"\"\n    Plot the tree rooted at root\n    \"\"\"\n    # plot the tree\n    G = nx.DiGraph()\n    G.add_node(root.id, label='<PD>')\n    def add_node(node: ChanceNode, depth):",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:37-70"
+    },
+    "117": {
+        "file_id": 12,
+        "content": "This code contains functions for traversing a decision tree, extracting all decision nodes, and visualizing the tree. The `pre_order_traverse` function is used to traverse the tree in pre-order fashion, calling different functions based on the node type. The `get_all_decision_nodes` function collects all decision nodes in the tree. The `print_tree` function prints information about each chance node in the tree. Lastly, the `plot_tree` function plots the entire decision tree using a graph library.",
+        "type": "comment"
+    },
+    "118": {
+        "file_id": 12,
+        "content": "        if len(node.children) > 0:\n            child_id = node.children[0].id\n            parent_id = node.parent.id\n            G.add_node(child_id)\n            avg_return = np.mean(node.sampled_returns)\n            edge_label = f'{repr(tokenizer.decode(node.action))}\\np={node.prob:.2f}\\nR={avg_return:.2f}'\n            G.add_edge(parent_id, child_id, label=edge_label)\n    pre_order_traverse(root, chance_node_fn=add_node)\n    plt.figure(figsize=(15, 15))\n    pos = hierarchy_pos(G, root=root.id)\n    nx.draw(G, pos, with_labels=True)\n    edge_labels = nx.get_edge_attributes(G, 'label')\n    # plot labels on the edges horizontally\n    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, label_pos=0.5, rotate=False)\n    plt.savefig(filename + '.pdf', format=\"pdf\")\n    plt.close()\ndef convert_to_json(root: DecisionNode, env, selected_act):\n    \"\"\"\n    A function to serialize a tree and return a json object\n    \"\"\"\n    ret = []\n    def get_info(node: ChanceNode, depth):\n        if node.action == env.terminal_token:",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:71-103"
+    },
+    "119": {
+        "file_id": 12,
+        "content": "This code performs a pre-order traversal of the decision tree, adding nodes to a graph and calculating average returns for each node. It then visualizes the graph using networkx and saves it as a PDF file. The code also includes a function to serialize the tree into a JSON object.",
+        "type": "comment"
+    },
+    "120": {
+        "file_id": 12,
+        "content": "            # terminal state has no complete_program attribute, since the program is already complete\n            complete_program = env.convert_state_to_program(node.children[0].state)\n        else:\n            complete_program = env.convert_state_to_program(node.children[0].info['complete_program'])\n        info = {'token': env.tokenizer.decode(node.action),\n                'state': env.convert_state_to_program(node.children[0].state),\n                'selected': node.action == selected_act,\n                'score': chance_node_value(node),\n                'complete_program': complete_program}\n        ret.append(info)\n    pre_order_traverse(root, chance_node_fn=get_info)\n    return ret\ndef hierarchy_pos(G, root=None, width=1., vert_gap=0.2, vert_loc=0, leaf_vs_root_factor=0.5):\n    \"\"\"\n    Shun: As of early 2023, I couldn't find a layout in graphviz that plots a tree nicely.\n    So I'm using the following function found in this answer:\n    https://stackoverflow.com/a/29597209/1025757\n    ---\n    If the graph is a tree this will return the positions to plot this in a",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:104-127"
+    },
+    "121": {
+        "file_id": 12,
+        "content": "This code is performing a pre-order traversal of a tree data structure and returning information about each node. The information includes the token decoded from the node's action, the converted state of the child node (if not a terminal), whether the node's action matches the selected action, the score based on chance node value, and the complete program if applicable. Additionally, there is another function called \"hierarchy_pos\" which seems to be related to plotting positions for a tree using graphviz library but it has been noted that finding a good layout is difficult as of early 2023.",
+        "type": "comment"
+    },
+    "122": {
+        "file_id": 12,
+        "content": "    hierarchical layout.\n    Based on Joel's answer at https://stackoverflow.com/a/29597209/2966723,\n    but with some modifications.\n    We include this because it may be useful for plotting transmission trees,\n    and there is currently no networkx equivalent (though it may be coming soon).\n    There are two basic approaches we think of to allocate the horizontal\n    location of a node.\n    - Top down: we allocate horizontal space to a node.  Then its ``k``\n      descendants split up that horizontal space equally.  This tends to result\n      in overlapping nodes when some have many descendants.\n    - Bottom up: we allocate horizontal space to each leaf node.  A node at a\n      higher level gets the entire space allocated to its descendant leaves.\n      Based on this, leaf nodes at higher levels get the same space as leaf\n      nodes very deep in the tree.\n    We use use both of these approaches simultaneously with ``leaf_vs_root_factor``\n    determining how much of the horizontal space is based on the bottom up",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:128-148"
+    },
+    "123": {
+        "file_id": 12,
+        "content": "This code is defining a hierarchical layout for a node in a tree, using both top-down and bottom-up approaches. It allocates horizontal space to each node based on the number of its descendants or leaves, depending on the \"leaf_vs_root_factor\" parameter. This method helps in preventing overlapping nodes when some have many descendants.",
+        "type": "comment"
+    },
+    "124": {
+        "file_id": 12,
+        "content": "    or top down approaches.  ``0`` gives pure bottom up, while 1 gives pure top\n    down.\n    :Arguments:\n    **G** the graph (must be a tree)\n    **root** the root node of the tree\n    - if the tree is directed and this is not given, the root will be found and used\n    - if the tree is directed and this is given, then the positions will be\n      just for the descendants of this node.\n    - if the tree is undirected and not given, then a random choice will be used.\n    **width** horizontal space allocated for this branch - avoids overlap with other branches\n    **vert_gap** gap between levels of hierarchy\n    **vert_loc** vertical location of root\n    **leaf_vs_root_factor**\n    xcenter: horizontal location of root\n    \"\"\"\n    if not nx.is_tree(G):\n        raise TypeError('cannot use hierarchy_pos on a graph that is not a tree')\n    if root is None:\n        if isinstance(G, nx.DiGraph):\n            root = next(iter(nx.topological_sort(G)))  # allows back compatibility with nx version 1.11\n        else:\n            root = random.choice(list(G.nodes))",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:149-180"
+    },
+    "125": {
+        "file_id": 12,
+        "content": "This code checks if the given graph is a tree and throws an error if it's not. If the root node of the tree is not specified, it finds the root either by using topological sorting or choosing a random node. The code ensures the graph is a tree before proceeding to set up position parameters for the hierarchy.",
+        "type": "comment"
+    },
+    "126": {
+        "file_id": 12,
+        "content": "    def _hierarchy_pos(G, root, leftmost, width, leafdx=0.2, vert_gap=0.2, vert_loc=0,\n                       xcenter=0.5, rootpos=None,\n                       leafpos=None, parent=None):\n        '''\n        see hierarchy_pos docstring for most arguments\n        pos: a dict saying where all nodes go if they have been assigned\n        parent: parent of this branch. - only affects it if non-directed\n        '''\n        if rootpos is None:\n            rootpos = {root: (xcenter, vert_loc)}\n        else:\n            rootpos[root] = (xcenter, vert_loc)\n        if leafpos is None:\n            leafpos = {}\n        children = list(G.neighbors(root))\n        leaf_count = 0\n        if not isinstance(G, nx.DiGraph) and parent is not None:\n            children.remove(parent)\n        if len(children) != 0:\n            rootdx = width / len(children)\n            nextx = xcenter - width / 2 - rootdx / 2\n            for child in children:\n                nextx += rootdx\n                rootpos, leafpos, newleaves = _hierarchy_pos(G, child, leftmost + leaf_count * leafdx,",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:182-208"
+    },
+    "127": {
+        "file_id": 12,
+        "content": "This function assigns positions to nodes in a tree layout, considering factors like width, leaf position, and parent relationship. It takes a graph (G), root node, leftmost position, width, leaf displacement, vertical gap, and vertical location as input, and returns the positions of all nodes if they have been assigned. If root or leaf positions are not provided, it initializes them accordingly. It handles undirected graphs differently by excluding parent from children list. The function recursively calls itself for each child node to calculate their positions.",
+        "type": "comment"
+    },
+    "128": {
+        "file_id": 12,
+        "content": "                                                             width=rootdx, leafdx=leafdx,\n                                                             vert_gap=vert_gap, vert_loc=vert_loc - vert_gap,\n                                                             xcenter=nextx, rootpos=rootpos, leafpos=leafpos,\n                                                             parent=root)\n                leaf_count += newleaves\n            leftmostchild = min((x for x, y in [leafpos[child] for child in children]))\n            rightmostchild = max((x for x, y in [leafpos[child] for child in children]))\n            leafpos[root] = ((leftmostchild + rightmostchild) / 2, vert_loc)\n        else:\n            leaf_count = 1\n            leafpos[root] = (leftmost, vert_loc)\n        #        pos[root] = (leftmost + (leaf_count-1)*dx/2., vert_loc)\n        #        print(leaf_count)\n        return rootpos, leafpos, leaf_count\n    xcenter = width / 2.\n    if isinstance(G, nx.DiGraph):\n        leafcount = len([node for node in nx.descendants(G, root) if G.out_degree(node) == 0])",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:209-227"
+    },
+    "129": {
+        "file_id": 12,
+        "content": "This code calculates the position of a tree node based on its children and their positions, considering leaf nodes as well. It updates leaf_count and leafpos dictionary for the root node if it has any children; otherwise, it sets leaf_count to 1 and calculates leftmost and rightmost child positions to determine the root's position. If the graph is a directed graph, it counts the number of leaf nodes as leaf_count.",
+        "type": "comment"
+    },
+    "130": {
+        "file_id": 12,
+        "content": "    elif isinstance(G, nx.Graph):\n        leafcount = len([node for node in nx.node_connected_component(G, root) if G.degree(node) == 1 and node != root])\n    rootpos, leafpos, leaf_count = _hierarchy_pos(G, root, 0, width,\n                                                  leafdx=width * 1. / leafcount,\n                                                  vert_gap=vert_gap,\n                                                  vert_loc=vert_loc,\n                                                  xcenter=xcenter)\n    pos = {}\n    for node in rootpos:\n        pos[node] = (\n        leaf_vs_root_factor * leafpos[node][0] + (1 - leaf_vs_root_factor) * rootpos[node][0], leafpos[node][1])\n    #    pos = {node:(leaf_vs_root_factor*x1+(1-leaf_vs_root_factor)*x2, y1) for ((x1,y1), (x2,y2)) in (leafpos[node], rootpos[node]) for node in rootpos}\n    xmax = max(x for x, y in pos.values())\n    for node in pos:\n        pos[node] = (pos[node][0] * width / xmax, pos[node][1])\n    return pos",
+        "type": "code",
+        "location": "/dyna_gym/utils/tree_search_utils.py:228-243"
+    },
+    "131": {
+        "file_id": 12,
+        "content": "This code snippet checks if the input graph G is a networkx Graph, then determines the number of leaf nodes in a connected component and calculates their position relative to root nodes. It adjusts the x-coordinates of all node positions based on the width and maximum x value for proper visualization.",
+        "type": "comment"
+    },
+    "132": {
+        "file_id": 13,
+        "content": "/dyna_gym/utils/utils.py",
+        "type": "filepath"
+    },
+    "133": {
+        "file_id": 13,
+        "content": "Code contains utility functions for data handling, comparison and verification, with specific functions such as amax, combinations, and multigpu_breakpoint.",
+        "type": "summary"
+    },
+    "134": {
+        "file_id": 13,
+        "content": "import numpy as np\nfrom math import isclose\nimport itertools\nimport torch\nfrom gym import spaces\ndef close(a, b, r=13):\n    return isclose(round(a,r), round(b,r), rel_tol=1e-12, abs_tol=0.0)\ndef closevec(u, v, r=13):\n    assert len(u) == len(v), 'Error: vectors have different lengths: len(u)={} len(v)={}'.format(len(u), len(v))\n    for i in range(len(u)):\n        if not close(u[i], v[i], r):\n            return False\n    return True\ndef are_coeff_equal(v):\n    return bool(np.prod(list(v[i] == v[i+1] for i in range(len(v)-1)), axis=0))\ndef are_coeff_close(v):\n    return bool(np.prod(list(close(v[i],v[i+1]) for i in range(len(v)-1)), axis=0))\ndef assert_types(p, types_list):\n    \"\"\"\n    Assert that the types of the elements of p match those of the types_list\n    \"\"\"\n    assert len(p) == len(types_list), 'Error: expected {} parameters received {}'.format(len(types_list), len(p))\n    for i in range(len(p)):\n        assert type(p[i]) == types_list[i], 'Error: wrong type, expected {}, received {}'.format(types_list[i], type(p[i]))",
+        "type": "code",
+        "location": "/dyna_gym/utils/utils.py:1-30"
+    },
+    "135": {
+        "file_id": 13,
+        "content": "This code contains a set of utility functions for handling and checking various types of data. It includes functions to compare numbers, vectors, and check if coefficients are equal or close. There are also assertion functions to verify that the types of input parameters match expected types.",
+        "type": "comment"
+    },
+    "136": {
+        "file_id": 13,
+        "content": "def amax(v):\n    \"\"\"\n    Return the higher value and its index given an array of values.\n    \"\"\"\n    vmax, index = v[0], 0\n    for i in range(1, len(v)):\n        if v[i] > vmax:\n            vmax = v[i]\n            index = i\n    return vmax, index\ndef combinations(space):\n    if isinstance(space, spaces.Discrete):\n        return range(space.n)\n    elif isinstance(space, spaces.Tuple):\n        return itertools.product(*[combinations(s) for s in space.spaces])\n    else:\n        raise NotImplementedError\ndef multigpu_breakpoint():\n    if torch.distributed.is_initialized():\n        if torch.distributed.get_rank() == 0:\n            breakpoint()\n        else:\n            torch.distributed.barrier()",
+        "type": "code",
+        "location": "/dyna_gym/utils/utils.py:32-56"
+    },
+    "137": {
+        "file_id": 13,
+        "content": "The \"amax\" function takes an array of values and returns the higher value and its index. The \"combinations\" function generates all possible combinations of values for a given space, handling discrete spaces and tuples differently. The \"multigpu_breakpoint\" function checks if the distributed process is initialized and performs a breakpoint only on the main rank (0), while other ranks synchronize with a barrier.",
+        "type": "comment"
+    },
+    "138": {
+        "file_id": 14,
+        "content": "/examples/mcts_nscartpole_v0.py",
+        "type": "filepath"
+    },
+    "139": {
+        "file_id": 14,
+        "content": "The code sets up a Monte Carlo Tree Search (MCTS) agent to play the \"NSCartPole-v0\" game environment from OpenAI Gym, and runs the MCTS algorithm for 100 timesteps. It also has options for verbose output and rendering. If the episode ends before 100 timesteps, it prints how many timesteps it took to finish the episode.",
+        "type": "summary"
+    },
+    "140": {
+        "file_id": 14,
+        "content": "import gym\nimport dyna_gym.agents.mcts as mcts\n### Parameters\nenv = gym.make('NSCartPole-v0')\nagent = mcts.MCTS(action_space=env.action_space)\ntimesteps = 100\nverbose = False\n### Run\nenv.reset()\ndone = False\nfor ts in range(timesteps):\n    __, __, done, __ = env.step(agent.act(env,done))\n    if verbose:\n        env.print_state()\n    env.render()\n    if ts+1 == timesteps:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break",
+        "type": "code",
+        "location": "/examples/mcts_nscartpole_v0.py:1-22"
+    },
+    "141": {
+        "file_id": 14,
+        "content": "The code sets up a Monte Carlo Tree Search (MCTS) agent to play the \"NSCartPole-v0\" game environment from OpenAI Gym, and runs the MCTS algorithm for 100 timesteps. It also has options for verbose output and rendering. If the episode ends before 100 timesteps, it prints how many timesteps it took to finish the episode.",
+        "type": "comment"
+    },
+    "142": {
+        "file_id": 15,
+        "content": "/examples/random_nscartpole_v0.py",
+        "type": "filepath"
+    },
+    "143": {
+        "file_id": 15,
+        "content": "The code initializes a random agent and an environment, then runs the agent's actions for a specified number of timesteps. It prints the state of the environment after each action and renders the state in case verbose is True. The loop breaks if the episode ends or reaches the specified number of timesteps. Note: using a random agent will likely fail easily due to lack of intelligent decision-making.",
+        "type": "summary"
+    },
+    "144": {
+        "file_id": 15,
+        "content": "import gym\nimport dyna_gym.agents.my_random_agent as my_random_agent\n### Parameters\nenv = gym.make('NSCartPole-v0')\n# Note: Using a random agent will fail very easily!\nagent = my_random_agent.MyRandomAgent(action_space=env.action_space)\ntimesteps = 100\nverbose = False\n### Run\nenv.reset()\ndone = False\nfor ts in range(timesteps):\n    __, __, done, __ = env.step(agent.act(env,done))\n    if verbose:\n        env.print_state()\n    env.render()\n    if ts+1 == timesteps:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break",
+        "type": "code",
+        "location": "/examples/random_nscartpole_v0.py:1-23"
+    },
+    "145": {
+        "file_id": 15,
+        "content": "The code initializes a random agent and an environment, then runs the agent's actions for a specified number of timesteps. It prints the state of the environment after each action and renders the state in case verbose is True. The loop breaks if the episode ends or reaches the specified number of timesteps. Note: using a random agent will likely fail easily due to lack of intelligent decision-making.",
+        "type": "comment"
+    },
+    "146": {
+        "file_id": 16,
+        "content": "/examples/uct_language_alignment.py",
+        "type": "filepath"
+    },
+    "147": {
+        "file_id": 16,
+        "content": "The code imports libraries, defines a sentiment analysis function, sets parameters, initializes a language generation model, and uses MCTS for language alignment. It generates texts based on a given question with corresponding rewards for further processing.",
+        "type": "summary"
+    },
+    "148": {
+        "file_id": 16,
+        "content": "import transformers\nfrom transformers import pipeline\nfrom dyna_gym.pipelines import uct_for_hf_transformer_pipeline\n# define a reward function based on sentiment of the generated text\nsentiment_pipeline = pipeline(\"sentiment-analysis\")\ndef sentiment_analysis(sentence):\n    output = sentiment_pipeline(sentence)[0]\n    if output['label'] == 'POSITIVE':\n        return output['score']\n    else:\n        return -output['score']\n# maximum number of steps / tokens to generate in each episode\nhorizon = 50\n# arguments for the UCT agent\nuct_args = dict(\n    rollouts = 20,\n    gamma = 1.,\n    width = 3,\n    alg = 'uct', # or p_uct\n)\n# will be passed to huggingface model.generate()\nmodel_generation_args = dict(\n    top_k = 3,\n    top_p = 0.9,\n    do_sample = True,\n    temperature = 0.7,\n)\nmodel_name = \"gpt2\"\nmodel = transformers.AutoModelForCausalLM.from_pretrained(model_name)\ntokenizer = transformers.AutoTokenizer.from_pretrained(model_name)\npipeline = uct_for_hf_transformer_pipeline(\n    model = model,\n    tokenizer = tokenizer,",
+        "type": "code",
+        "location": "/examples/uct_language_alignment.py:1-41"
+    },
+    "149": {
+        "file_id": 16,
+        "content": "This code imports necessary libraries, defines a sentiment analysis function based on generated text, sets the maximum number of steps and UCT agent arguments, and initializes a Hugging Face model for language generation.",
+        "type": "comment"
+    },
+    "150": {
+        "file_id": 16,
+        "content": "    horizon = horizon,\n    reward_func = sentiment_analysis,\n    uct_args = uct_args,\n    model_generation_args = model_generation_args,\n    should_plot_tree = True, # plot the tree after generation\n)\ninput_str = \"What do you think of this movie?\"\noutputs = pipeline(input_str=input_str)\nfor text, reward in zip(outputs['texts'], outputs['rewards']):\n    print(\"==== Text ====\")\n    print(text)\n    print(\"==== Reward:\", reward, \"====\")\n    print()",
+        "type": "code",
+        "location": "/examples/uct_language_alignment.py:42-56"
+    },
+    "151": {
+        "file_id": 16,
+        "content": "The code defines a function using MCTS (Monte Carlo Tree Search) algorithm for language alignment. It sets the horizon, reward function (sentiment analysis), UCT parameters and plots the tree after generation. Then, it uses a pipeline to input a text question and outputs the generated texts and their corresponding rewards for further processing.",
+        "type": "comment"
+    },
+    "152": {
+        "file_id": 17,
+        "content": "/examples/uct_nscartpole_v0.py",
+        "type": "filepath"
+    },
+    "153": {
+        "file_id": 17,
+        "content": "This code imports gym and Dyna-Gym's UCT agent, creates an environment (NSCartPole-v0), initializes a UCT agent with 100 rollouts, runs the agent for 100 timesteps, renders and prints state if verbose is True, and finishes the episode when done is True.",
+        "type": "summary"
+    },
+    "154": {
+        "file_id": 17,
+        "content": "import gym\nimport dyna_gym.agents.uct as uct\n### Parameters\nenv = gym.make('NSCartPole-v0')\nagent = uct.UCT(\n    action_space=env.action_space,\n    rollouts=100\n)\ntimesteps = 100\nverbose = False\n### Run\nenv.reset()\ndone = False\nfor ts in range(timesteps):\n    __, __, done, __ = env.step(agent.act(env,done))\n    if verbose:\n        env.print_state()\n    env.render()\n    if ts+1 == timesteps:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break",
+        "type": "code",
+        "location": "/examples/uct_nscartpole_v0.py:1-25"
+    },
+    "155": {
+        "file_id": 17,
+        "content": "This code imports gym and Dyna-Gym's UCT agent, creates an environment (NSCartPole-v0), initializes a UCT agent with 100 rollouts, runs the agent for 100 timesteps, renders and prints state if verbose is True, and finishes the episode when done is True.",
+        "type": "comment"
+    },
+    "156": {
+        "file_id": 18,
+        "content": "/examples/uct_nscartpole_v1.py",
+        "type": "filepath"
+    },
+    "157": {
+        "file_id": 18,
+        "content": "This code initializes a UCT agent in the NSCartPole-v1 environment using Dyna-Gym library, and runs a simulation for 100 timesteps. The UCT agent makes decisions by considering game state, rollouts, horizon, and dynamic model. It prints state and renders each step until reaching the end of the episode or when done condition is met.",
+        "type": "summary"
+    },
+    "158": {
+        "file_id": 18,
+        "content": "import gym\nimport dyna_gym.agents.uct as uct\n### Parameters\nenv = gym.make('NSCartPole-v1')\nagent = uct.UCT(\n    action_space=env.action_space,\n    rollouts=500,\n    horizon=200,\n    is_model_dynamic=True\n)\ntimesteps = 100\nverbose = False\n### Run\nenv.reset()\ndone = False\nfor ts in range(timesteps):\n    __, reward, done, __ = env.step(agent.act(env,done))\n    if verbose:\n        env.print_state()\n    env.render()\n    if ts+1 == timesteps:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break",
+        "type": "code",
+        "location": "/examples/uct_nscartpole_v1.py:1-27"
+    },
+    "159": {
+        "file_id": 18,
+        "content": "This code initializes a UCT agent in the NSCartPole-v1 environment using Dyna-Gym library, and runs a simulation for 100 timesteps. The UCT agent makes decisions by considering game state, rollouts, horizon, and dynamic model. It prints state and renders each step until reaching the end of the episode or when done condition is met.",
+        "type": "comment"
+    },
+    "160": {
+        "file_id": 19,
+        "content": "/examples/uct_nscartpole_v2.py",
+        "type": "filepath"
+    },
+    "161": {
+        "file_id": 19,
+        "content": "This code imports necessary libraries, creates a UCT agent for the 'NSCartPole-v2' environment in Dyna-Gym, and runs an episode where it takes actions based on the agent's recommendations. The loop continues until either the end of the episode is reached or a timeout occurs.",
+        "type": "summary"
+    },
+    "162": {
+        "file_id": 19,
+        "content": "import gym\nimport dyna_gym.agents.uct as uct\n### Parameters\nenv = gym.make('NSCartPole-v2')\nagent = uct.UCT(\n    action_space=env.action_space,\n    rollouts=100,\n    horizon=50,\n    is_model_dynamic=True\n)\n### Run\nenv.reset()\ndone = False\ntimeout = 1000\nfor ts in range(timeout):\n    __, reward, done, __ = env.step(agent.act(env,done))\n    env.render()\n    if ts+1 == timeout:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break",
+        "type": "code",
+        "location": "/examples/uct_nscartpole_v2.py:1-24"
+    },
+    "163": {
+        "file_id": 19,
+        "content": "This code imports necessary libraries, creates a UCT agent for the 'NSCartPole-v2' environment in Dyna-Gym, and runs an episode where it takes actions based on the agent's recommendations. The loop continues until either the end of the episode is reached or a timeout occurs.",
+        "type": "comment"
+    },
+    "164": {
+        "file_id": 20,
+        "content": "/setup.py",
+        "type": "filepath"
+    },
+    "165": {
+        "file_id": 20,
+        "content": "This code is a setup script for the \"dyna_gym\" package. It specifies the name, version, and required packages for installation. Installation requirements include setuptools, pyglet, gym==0.20.0, torch, transformers, scipy, and matplotlib.",
+        "type": "summary"
+    },
+    "166": {
+        "file_id": 20,
+        "content": "from setuptools import setup\nsetup(name='dyna_gym',\n      version='0.0.1',\n      packages=['dyna_gym'],\n      install_requires=[\n            # the following two are required to install gym==0.20.0\n            'setuptools==65.5.0',\n            'pyglet==1.5.27',\n            'gym==0.20.0',\n            'torch',\n            'transformers',\n            'scipy',\n            'matplotlib',\n      ]\n)",
+        "type": "code",
+        "location": "/setup.py:1-16"
+    },
+    "167": {
+        "file_id": 20,
+        "content": "This code is a setup script for the \"dyna_gym\" package. It specifies the name, version, and required packages for installation. Installation requirements include setuptools, pyglet, gym==0.20.0, torch, transformers, scipy, and matplotlib.",
+        "type": "comment"
+    }
+}

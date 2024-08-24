@@ -1,0 +1,15 @@
+{
+    "summary": "This code is a modified version of Dyna Gym, utilizing Monte-Carlo tree search for large language model decoding. It offers installation instructions and examples such as GPT-2 and UCT for sentiment analysis, alongside classic planning domains for debugging purposes.",
+    "details": [
+        {
+            "comment": "This code is a forked version of Dyna Gym that focuses on using Monte-Carlo tree search for decoding large language models. It provides installation instructions and examples, including GPT-2 and UCT for language alignment with positive sentiment reward. It also includes classic planning domains (non-LLM) useful for debugging purposes.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/README.md\":0-32",
+            "content": "# Monte-Carlo Tree Search for Large Language Models\nThis repository is a fork of [Dyna Gym](https://github.com/SuReLI/dyna-gym) and extends its functionality to focus on using Monte-Carlo tree search for decoding large language models (LLMs).\n## Installation\nFirst, create a new Conda environment (optional):\n```bash\nconda create --name mcts-for-llm python=3.10\nconda activate mcts-for-llm\n```\nWe tested on python 3.10.0. Other versions may work as well.\nThen, git clone this repo and install the package:\n```bash\npip install -e .\n```\n## Examples\n### Using GPT-2 and UCT for Language Alignment with Positive Sentiment Reward\nRun the following command to generate texts using the GPT-2 model, guided by UCT (Upper Confidence Bound applied to Trees) for language alignment. Positive sentiment is used as the reward.\n```bash\npython examples/uct_language_alignment.py\n```\n### Classic Planning Domains (Non-LLM)\nThis repository also includes some classic planning domains derived from the original Dyna Gym repo. These examples don't use LLMs but may be useful for debugging purposes."
+        },
+        {
+            "comment": "These lines are running Python examples for the UCT algorithm on different versions of CartPole, a classic Atari game environment. This could be part of an AI/machine learning experiment involving reinforcement learning and Monte Carlo Tree Search.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/README.md\":34-38",
+            "content": "```bash\npython examples/uct_nscartpole_v0.py\npython examples/uct_nscartpole_v1.py\n...\n```"
+        }
+    ]
+}

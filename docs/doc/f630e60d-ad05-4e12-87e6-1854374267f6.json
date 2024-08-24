@@ -1,0 +1,10 @@
+{
+    "summary": "This code imports necessary libraries, creates a UCT agent for the 'NSCartPole-v2' environment in Dyna-Gym, and runs an episode where it takes actions based on the agent's recommendations. The loop continues until either the end of the episode is reached or a timeout occurs.",
+    "details": [
+        {
+            "comment": "This code imports necessary libraries, creates a UCT agent for the 'NSCartPole-v2' environment in Dyna-Gym, and runs an episode where it takes actions based on the agent's recommendations. The loop continues until either the end of the episode is reached or a timeout occurs.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/examples/uct_nscartpole_v2.py\":0-23",
+            "content": "import gym\nimport dyna_gym.agents.uct as uct\n### Parameters\nenv = gym.make('NSCartPole-v2')\nagent = uct.UCT(\n    action_space=env.action_space,\n    rollouts=100,\n    horizon=50,\n    is_model_dynamic=True\n)\n### Run\nenv.reset()\ndone = False\ntimeout = 1000\nfor ts in range(timeout):\n    __, reward, done, __ = env.step(agent.act(env,done))\n    env.render()\n    if ts+1 == timeout:\n        print(\"Successfully reached end of episode ({} timesteps)\".format(ts+1))\n    if done:\n        print(\"Episode finished after {} timesteps\".format(ts+1))\n        break"
+        }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "summary": "The code registers several environment variants and a new \"LanguageEnv-v0\" using DynaGym, associating tasks with specific entry points.",
+    "details": [
+        {
+            "comment": "This code registers several environment variants (v0, v1, v2) for different tasks like RandomNSMDP, NSFrozenLake, NSCliff, NSBridge, and NSCartPole in DynaGym. It uses the Gym library's registration feature to associate each task with a specific entry point.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/__init__.py\":0-64",
+            "content": "from gym.envs.registration import register\nregister(\n    id='RandomNSMDP-v0',\n    entry_point='dyna_gym.envs:RandomNSMDP',\n)\nregister(\n    id='NSFrozenLake-v0',\n    entry_point='dyna_gym.envs:NSFrozenLakeV0',\n)\nregister(\n    id='NSFrozenLake-v1',\n    entry_point='dyna_gym.envs:NSFrozenLakeV1',\n)\nregister(\n    id='NSFrozenLake-v2',\n    entry_point='dyna_gym.envs:NSFrozenLakeV2',\n)\nregister(\n    id='NSCliff-v0',\n    entry_point='dyna_gym.envs:NSCliffV0',\n)\nregister(\n    id='NSCliff-v1',\n    entry_point='dyna_gym.envs:NSCliffV1',\n)\nregister(\n    id='NSCliff-v2',\n    entry_point='dyna_gym.envs:NSCliffV2',\n)\nregister(\n    id='NSBridge-v0',\n    entry_point='dyna_gym.envs:NSBridgeV0',\n)\nregister(\n    id='NSBridge-v1',\n    entry_point='dyna_gym.envs:NSBridgeV1',\n)\nregister(\n    id='NSBridge-v2',\n    entry_point='dyna_gym.envs:NSBridgeV2',\n)\nregister(\n    id='NSCartPole-v0',\n    entry_point='dyna_gym.envs:NSCartPoleV0',\n)\nregister(\n    id='NSCartPole-v1',\n    entry_point='dyna_gym.envs:NSCartPoleV1',\n)\nregister(\n    id='NSCartPole-v2',\n    entry_point='dyna_gym.envs:NSCartPoleV2',"
+        },
+        {
+            "comment": "The code is registering a new environment named \"LanguageEnv-v0\" using the DynaGym framework, where the entry point is set to 'dyna_gym.envs:LanguageEnv'.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/__init__.py\":65-70",
+            "content": ")\nregister(\n    id='LanguageEnv-v0',\n    entry_point='dyna_gym.envs:LanguageEnv',\n)"
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "summary": "This code is a setup script for the \"dyna_gym\" package. It specifies the name, version, and required packages for installation. Installation requirements include setuptools, pyglet, gym==0.20.0, torch, transformers, scipy, and matplotlib.",
+    "details": [
+        {
+            "comment": "This code is a setup script for the \"dyna_gym\" package. It specifies the name, version, and required packages for installation. Installation requirements include setuptools, pyglet, gym==0.20.0, torch, transformers, scipy, and matplotlib.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/setup.py\":0-15",
+            "content": "from setuptools import setup\nsetup(name='dyna_gym',\n      version='0.0.1',\n      packages=['dyna_gym'],\n      install_requires=[\n            # the following two are required to install gym==0.20.0\n            'setuptools==65.5.0',\n            'pyglet==1.5.27',\n            'gym==0.20.0',\n            'torch',\n            'transformers',\n            'scipy',\n            'matplotlib',\n      ]\n)"
+        }
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "summary": "This line imports the \"uct_for_hf_transformer_pipeline\" function from the \"uct_for_hf_transformer\" module in the \"dyna_gym.pipelines\" package, which is likely used for reinforcement learning with Hugging Face Transformers in a Dyna-Gym environment.",
+    "details": [
+        {
+            "comment": "This line imports the \"uct_for_hf_transformer_pipeline\" function from the \"uct_for_hf_transformer\" module in the \"dyna_gym.pipelines\" package, which is likely used for reinforcement learning with Hugging Face Transformers in a Dyna-Gym environment.",
+            "location": "\"/media/root/Prima/works/mcts-for-llm/docs/src/dyna_gym/pipelines/__init__.py\":0-0",
+            "content": "from dyna_gym.pipelines.uct_for_hf_transformer import uct_for_hf_transformer_pipeline"
+        }
+    ]
+}
